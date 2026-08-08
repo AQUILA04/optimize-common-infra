@@ -1,0 +1,23 @@
+# Build / IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.local
+*.pem
+!cert/.gitkeep
+
+# Vault unseal / init output (never commit)
+vault/keys/
+vault/init.json
+**/unseal*
+
+# Logs
+*.log
+
+# OS
+.DS_Store
