@@ -38,6 +38,8 @@ sudo /opt/optimizesolux/common-infra/install.sh --enable ai --force-update ollam
 | [docs/CONSUMER-GUIDE.md](docs/CONSUMER-GUIDE.md) | Brancher un produit |
 | [docs/MIGRATION-FROM-PRODUCTS.md](docs/MIGRATION-FROM-PRODUCTS.md) | Migrer depuis les compose produits |
 | [docs/VAULT.md](docs/VAULT.md) | Bootstrap Vault |
+| [docs/GITHUB-SECRETS.md](docs/GITHUB-SECRETS.md) | Secrets Actions Contabo |
+| [k8s/README.md](k8s/README.md) | Install K8s idempotent |
 
 ## Profiles Compose
 

@@ -1,0 +1,85 @@
+name: Optimize Common Infra CD
+
+# Contabo deploy after CI on release/**, or manual promote / install.
+# Ollama is NEVER enabled by CD defaults.
+
+on:
+  workflow_run:
+    workflows: ["Optimize Common Infra CI"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Action
+        type: choice
+        required: true
+        default: install
+        options:
+          - install
+          - promote
+      force_update:
+        description: Optional --force-update tool (empty = none; all excludes ollama)
+        required: false
+        default: ""
+      enable_profiles:
+        description: Extra profiles (space-separated), e.g. kafka tracing — never include ai in CD unless intentional
+        required: false
+        default: ""
+
+jobs:
+  deploy:
+    if: |
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+       startsWith(github.event.workflow_run.head_branch, 'release/')) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Prepare SSH key
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Bootstrap & install on Contabo
+        env:
+          SERVER_USER: ${{ secrets.PROD_SERVER_USER }}
+          SERVER_HOST: ${{ secrets.PROD_SERVER_HOST }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          FORCE_UPDATE: ${{ github.event.inputs.force_update || '' }}
+          ENABLE_EXTRA: ${{ github.event.inputs.enable_profiles || '' }}
+        run: |
+          set -euo pipefail
+          REPO_RAW="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main"
+
+          ssh -o StrictHostKeyChecking=no -i private_key "$SERVER_USER@$SERVER_HOST" bash << ENDSSH
+          set -euo pipefail
+          mkdir -p /opt/optimizesolux/common-infra
+          curl -sSL "${REPO_RAW}/install.sh" -o /opt/optimizesolux/common-infra/install.sh
+          chmod +x /opt/optimizesolux/common-infra/install.sh
+          ENDSSH
+
+          ARGS=(--github-repo "$GITHUB_REPOSITORY")
+          if [[ -n "$FORCE_UPDATE" ]]; then
+            ARGS+=(--force-update "$FORCE_UPDATE")
+          fi
+          # Never auto-enable ai from CD even if someone puts it in enable_profiles by mistake
+          if [[ -n "$ENABLE_EXTRA" ]]; then
+            for p in $ENABLE_EXTRA; do
+              if [[ "$p" == "ai" ]]; then
+                echo "Refusing to enable ai via CD. Use SSH install.sh --enable ai manually." >&2
+                exit 1
+              fi
+              ARGS+=(--enable "$p")
+            done
+          fi
+
+          REMOTE_CMD="export GHCR_USERNAME=$(printf %q "$GHCR_USERNAME"); export GHCR_TOKEN=$(printf %q "$GHCR_TOKEN"); sudo -E /opt/optimizesolux/common-infra/install.sh $(printf '%q ' "${ARGS[@]}")"
+          ssh -o StrictHostKeyChecking=no -i private_key "$SERVER_USER@$SERVER_HOST" "$REMOTE_CMD"
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f private_key

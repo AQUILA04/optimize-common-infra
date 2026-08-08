@@ -1,0 +1,30 @@
+{
+  "realm": "notification-hub",
+  "enabled": true,
+  "displayName": "Notification Hub",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "clients": [
+    {
+      "clientId": "notification-hub-console",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": [
+        "https://notification.optimizesolux.com/*",
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": ["+"]
+    },
+    {
+      "clientId": "notification-hub-api",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "secret": "CHANGE_ME_IN_VAULT"
+    }
+  ]
+}

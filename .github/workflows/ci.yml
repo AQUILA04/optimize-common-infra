@@ -1,0 +1,120 @@
+name: Optimize Common Infra CI
+
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main, "release/**"]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      keycloak: ${{ steps.filter.outputs.keycloak }}
+      eureka: ${{ steps.filter.outputs.eureka }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            keycloak:
+              - 'images/keycloak/**'
+            eureka:
+              - 'images/eureka/**'
+            gateway:
+              - 'images/gateway/**'
+
+  build-keycloak:
+    needs: changes
+    if: needs.changes.outputs.keycloak == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lowercase image
+        run: echo "IMAGE_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./images/keycloak
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-keycloak:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-keycloak:latest
+
+  build-eureka:
+    needs: changes
+    if: needs.changes.outputs.eureka == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lowercase image
+        run: echo "IMAGE_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./images/eureka
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-eureka:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-eureka:latest
+
+  build-gateway:
+    needs: changes
+    if: needs.changes.outputs.gateway == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lowercase image
+        run: echo "IMAGE_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./images/gateway
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-gateway:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-gateway:latest
+
+  ci-ok:
+    needs: [changes, build-keycloak, build-eureka, build-gateway]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gate
+        run: |
+          for r in "${{ needs.build-keycloak.result }}" "${{ needs.build-eureka.result }}" "${{ needs.build-gateway.result }}"; do
+            if [[ "$r" == "failure" || "$r" == "cancelled" ]]; then exit 1; fi
+          done
+          echo OK

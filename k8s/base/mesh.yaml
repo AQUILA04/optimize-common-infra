@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka
+  template:
+    metadata:
+      labels:
+        app: eureka
+    spec:
+      containers:
+        - name: eureka
+          image: ghcr.io/aquila04/optimize-common-infra-eureka:latest
+          env:
+            - name: SERVER_PORT
+              value: "8761"
+          ports:
+            - containerPort: 8761
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: eureka
+  ports:
+    - port: 8761
+      targetPort: 8761
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: ghcr.io/aquila04/optimize-common-infra-gateway:latest
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://eureka:8761/eureka/
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: gateway
+  ports:
+    - port: 8080
+      targetPort: 8080

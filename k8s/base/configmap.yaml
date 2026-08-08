@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oci-common-config
+  namespace: optimizesolux-common
+data:
+  REDIS_HOST: redis
+  ARTEMIS_BROKER_URL: tcp://artemis:61616
+  KEYCLOAK_INTERNAL_URL: http://keycloak:8080
+  VAULT_ADDR: http://vault:8200
+  MAILPIT_SMTP_HOST: mailpit
+  MAILPIT_SMTP_PORT: "1025"
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+  MINIO_ENDPOINT: http://minio:9000
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/

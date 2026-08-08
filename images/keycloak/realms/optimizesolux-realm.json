@@ -1,0 +1,29 @@
+{
+  "realm": "optimizesolux",
+  "enabled": true,
+  "displayName": "OptimizeSolux Shared",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "optimizesolux-console",
+      "name": "OptimizeSolux Console",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["https://*.optimizesolux.com/*", "http://localhost:*"],
+      "webOrigins": ["+"]
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Platform admin" },
+      { "name": "operator", "description": "Ops operator" }
+    ]
+  }
+}

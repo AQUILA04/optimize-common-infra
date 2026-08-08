@@ -1,0 +1,244 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: artemis
+  template:
+    metadata:
+      labels:
+        app: artemis
+    spec:
+      containers:
+        - name: artemis
+          image: apache/activemq-artemis:2.40.0
+          env:
+            - name: ARTEMIS_USER
+              value: artemis
+            - name: ARTEMIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: ARTEMIS_PASSWORD
+          ports:
+            - containerPort: 61616
+              name: core
+            - containerPort: 8161
+              name: console
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: artemis
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: artemis
+  ports:
+    - name: core
+      port: 61616
+      targetPort: core
+    - name: console
+      port: 8161
+      targetPort: console
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+          args: ["server", "/data", "--console-address", ":9001"]
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: MINIO_ROOT_PASSWORD
+          ports:
+            - containerPort: 9000
+              name: api
+            - containerPort: 9001
+              name: console
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: api
+      port: 9000
+      targetPort: api
+    - name: console
+      port: 9001
+      targetPort: console
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailpit
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailpit
+  template:
+    metadata:
+      labels:
+        app: mailpit
+    spec:
+      containers:
+        - name: mailpit
+          image: axllent/mailpit:v1.21
+          ports:
+            - containerPort: 1025
+              name: smtp
+            - containerPort: 8025
+              name: ui
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailpit
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: mailpit
+  ports:
+    - name: smtp
+      port: 1025
+      targetPort: smtp
+    - name: ui
+      port: 8025
+      targetPort: ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+        - name: vault
+          image: hashicorp/vault:1.17.6
+          args: ["server"]
+          env:
+            - name: VAULT_LOCAL_CONFIG
+              value: |
+                ui = true
+                listener "tcp" {
+                  address = "0.0.0.0:8200"
+                  tls_disable = 1
+                }
+                storage "file" {
+                  path = "/vault/data"
+                }
+                disable_mlock = true
+          ports:
+            - containerPort: 8200
+          securityContext:
+            capabilities:
+              add: ["IPC_LOCK"]
+          volumeMounts:
+            - name: data
+              mountPath: /vault/data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: vault
+  ports:
+    - port: 8200
+      targetPort: 8200
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4:8.14
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: PGADMIN_DEFAULT_EMAIL
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: PGADMIN_DEFAULT_PASSWORD
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: pgadmin
+  ports:
+    - port: 80
+      targetPort: 80

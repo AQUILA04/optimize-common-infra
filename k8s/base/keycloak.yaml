@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak-db
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak-db
+  template:
+    metadata:
+      labels:
+        app: keycloak-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_DB
+              value: keycloak
+            - name: POSTGRES_USER
+              value: keycloak
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: KEYCLOAK_DB_PASSWORD
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-db
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: keycloak-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: ghcr.io/aquila04/optimize-common-infra-keycloak:latest
+          args: ["start", "--import-realm"]
+          env:
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: KEYCLOAK_ADMIN
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: KEYCLOAK_ADMIN_PASSWORD
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL
+              value: jdbc:postgresql://keycloak-db:5432/keycloak
+            - name: KC_DB_USERNAME
+              value: keycloak
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: KEYCLOAK_DB_PASSWORD
+            - name: KC_HOSTNAME
+              value: auth.optimizesolux.com
+            - name: KC_PROXY_HEADERS
+              value: xforwarded
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+          ports:
+            - containerPort: 8080
+              name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - port: 8080
+      targetPort: http

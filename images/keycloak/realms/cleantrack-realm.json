@@ -1,0 +1,22 @@
+{
+  "realm": "cleantrack",
+  "enabled": true,
+  "displayName": "CleanTrack Pro",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "clients": [
+    {
+      "clientId": "cleantrack-client",
+      "enabled": true,
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "secret": "CHANGE_ME_IN_VAULT",
+      "redirectUris": [
+        "https://cleantrack.optimizesolux.com/*",
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": ["+"]
+    }
+  ]
+}

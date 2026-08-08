@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:0.5.4
+          ports:
+            - containerPort: 11434
+          resources:
+            requests:
+              memory: 2Gi
+            limits:
+              memory: 8Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: ollama
+  ports:
+    - port: 11434
+      targetPort: 11434
