@@ -40,6 +40,7 @@ sudo /opt/optimizesolux/common-infra/install.sh --enable ai --force-update ollam
 | [docs/VAULT.md](docs/VAULT.md) | Bootstrap Vault |
 | [docs/GITHUB-SECRETS.md](docs/GITHUB-SECRETS.md) | Secrets Actions Contabo |
 | [k8s/README.md](k8s/README.md) | Install K8s idempotent |
+| [`.cursor/skills/optimizesolux-common-infra-consumer`](.cursor/skills/optimizesolux-common-infra-consumer/SKILL.md) | Skill agent : brancher un produit |
 
 ## Profiles Compose
 
