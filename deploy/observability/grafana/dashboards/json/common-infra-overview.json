@@ -1,0 +1,175 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "value_and_name" },
+      "targets": [
+        { "expr": "up{job=\"redis\"}", "legendFormat": "Redis", "refId": "A" },
+        { "expr": "up{job=\"minio\"}", "legendFormat": "MinIO", "refId": "B" },
+        { "expr": "up{job=\"keycloak\"}", "legendFormat": "Keycloak", "refId": "C" },
+        { "expr": "up{job=\"artemis\"}", "legendFormat": "Artemis", "refId": "D" },
+        { "expr": "up{job=\"otel-collector\"}", "legendFormat": "OTel", "refId": "E" },
+        { "expr": "up{job=\"node-exporter\"}", "legendFormat": "Node", "refId": "F" },
+        { "expr": "up{job=\"cadvisor\"}", "legendFormat": "cAdvisor", "refId": "G" }
+      ],
+      "title": "Common tools status",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 5 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "redis_connected_clients",
+          "legendFormat": "clients",
+          "refId": "A"
+        }
+      ],
+      "title": "Redis connected clients",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 5 },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "redis_memory_used_bytes",
+          "legendFormat": "used",
+          "refId": "A"
+        },
+        {
+          "expr": "redis_memory_max_bytes",
+          "legendFormat": "max",
+          "refId": "B"
+        }
+      ],
+      "title": "Redis memory",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 5 },
+      "id": 4,
+      "targets": [
+        {
+          "expr": "rate(redis_commands_processed_total[5m])",
+          "legendFormat": "commands/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Redis commands/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+      "id": 5,
+      "targets": [
+        {
+          "expr": "minio_cluster_capacity_usable_total_bytes",
+          "legendFormat": "usable total",
+          "refId": "A"
+        },
+        {
+          "expr": "minio_cluster_capacity_usable_free_bytes",
+          "legendFormat": "usable free",
+          "refId": "B"
+        }
+      ],
+      "title": "MinIO cluster capacity",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+      "id": 6,
+      "targets": [
+        {
+          "expr": "artemis_address_memory_usage_percentage",
+          "legendFormat": "address mem %",
+          "refId": "A"
+        },
+        {
+          "expr": "artemis_connection_count",
+          "legendFormat": "connections",
+          "refId": "B"
+        },
+        {
+          "expr": "artemis_total_message_count",
+          "legendFormat": "messages",
+          "refId": "C"
+        }
+      ],
+      "title": "Artemis broker",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 21 },
+      "id": 7,
+      "targets": [
+        {
+          "expr": "keycloak_user_events_total",
+          "legendFormat": "{{event}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Keycloak user events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 29 },
+      "id": 8,
+      "targets": [
+        {
+          "expr": "{__name__=~\"^[a-zA-Z0-9_]+\", job=\"otel-collector\"}",
+          "legendFormat": "{{__name__}} {{service_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "OTLP app metrics (via otel-collector)",
+      "type": "timeseries",
+      "description": "Product metrics exported via OTLP appear here when apps set OTEL_SERVICE_NAME and OTEL_EXPORTER_OTLP_ENDPOINT."
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["optimizesolux", "common-infra"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "OptimizeSolux Common — Overview",
+  "uid": "oci-common-overview",
+  "version": 1
+}

@@ -47,6 +47,8 @@ networks:
 | Promtail | `promtail` | — (agent) | — |
 | Grafana | `grafana` | `3000` | `grafana.optimizesolux.com` |
 | node-exporter | `node-exporter` | `9100` | — |
+| cAdvisor | `cadvisor` | `8080` | — |
+| redis-exporter | `redis-exporter` | `9121` | — |
 | Jaeger | `jaeger` | UI `16686` | `jaeger.optimizesolux.com` |
 | Ollama | `ollama` | `11434` | — (profile `ai` only) |
 
@@ -61,9 +63,14 @@ SMTP_HOST=mailpit
 SMTP_PORT=1025
 VAULT_ADDR=http://vault:8200
 # or https://vault.optimizesolux.com
+OTEL_SERVICE_NAME={slug}-api
 OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+OTEL_RESOURCE_ATTRIBUTES=service.namespace=optimizesolux,deployment.environment=prod
 MINIO_ENDPOINT=http://minio:9000
 ```
+
+Observability details: [OBSERVABILITY.md](./OBSERVABILITY.md).
 
 ## Application databases (per product)
 
@@ -95,4 +102,6 @@ Product API ──optimizesolux-common──► redis:6379
                                     ► vault:8200
                                     ► otel-collector:4318
                                     ► minio:9000
+
+Host agents (profile observability): node-exporter, cAdvisor, Promtail → Prometheus / Loki → Grafana.
 ```

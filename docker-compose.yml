@@ -52,6 +52,9 @@ services:
       KC_PROXY_HEADERS: xforwarded
       KC_HTTP_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      # Keep /metrics on the main HTTP port for Prometheus scrape (keycloak:8080)
+      KC_LEGACY_OBSERVABILITY_INTERFACE: "true"
       KC_HTTP_PORT: "8080"
     volumes:
       - ./images/keycloak/realms:/opt/keycloak/data/import:ro
@@ -88,6 +91,19 @@ services:
       ARTEMIS_PASSWORD: ${ARTEMIS_PASSWORD:?ARTEMIS_PASSWORD required}
     volumes:
       - artemis_data:/var/lib/artemis-instance
+      - ./deploy/artemis/enable-prometheus-metrics.sh:/enable-prometheus-metrics.sh:ro
+      - ./deploy/artemis/plugins:/opt/oci-artemis-plugins:ro
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -euo pipefail
+        cd /var/lib/artemis-instance
+        if [[ ! -f ./etc/broker.xml ]]; then
+          LOGIN_OPTION="--require-login"
+          /opt/activemq-artemis/bin/artemis create --user "$${ARTEMIS_USER}" --password "$${ARTEMIS_PASSWORD}" --silent $${LOGIN_OPTION} .
+        fi
+        bash /enable-prometheus-metrics.sh
+        exec ./bin/artemis run
     networks: *common-networks
     labels:
       - "traefik.enable=true"
@@ -105,6 +121,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required}
+      # Scrape Prometheus from optimizesolux-common only (no public Traefik route for /metrics)
+      MINIO_PROMETHEUS_AUTH_TYPE: public
     volumes:
       - minio_data:/data
     networks: *common-networks
@@ -281,6 +299,39 @@ services:
       - "--path.sysfs=/host/sys"
       - "--path.rootfs=/rootfs"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - optimizesolux-common
+
+  cadvisor:
+    profiles: ["observability"]
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    command:
+      - "--housekeeping_interval=30s"
+      - "--docker_only=true"
+      - "--store_container_labels=false"
+      - "--whitelisted_container_labels=com.docker.compose.project,com.docker.compose.service,com.docker.compose.container-number"
+    networks:
+      - optimizesolux-common
+
+  redis-exporter:
+    profiles: ["observability"]
+    image: oliver006/redis_exporter:v1.62.0
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD required}
+    depends_on:
+      - redis
     networks:
       - optimizesolux-common
 

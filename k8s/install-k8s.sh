@@ -78,6 +78,8 @@ restart_for_tool() {
     loki) kubectl -n "$NS" rollout restart deploy/loki 2>/dev/null || true ;;
     promtail) kubectl -n "$NS" rollout restart daemonset/promtail 2>/dev/null || true ;;
     node-exporter) kubectl -n "$NS" rollout restart daemonset/node-exporter 2>/dev/null || true ;;
+    cadvisor) kubectl -n "$NS" rollout restart daemonset/cadvisor 2>/dev/null || true ;;
+    redis-exporter) kubectl -n "$NS" rollout restart deploy/redis-exporter 2>/dev/null || true ;;
     kafka) kubectl -n "$NS" rollout restart deploy/kafka deploy/zookeeper 2>/dev/null || true ;;
     rabbitmq) kubectl -n "$NS" rollout restart deploy/rabbitmq 2>/dev/null || true ;;
     jaeger) kubectl -n "$NS" rollout restart deploy/jaeger 2>/dev/null || true ;;
@@ -89,7 +91,7 @@ restart_for_tool() {
       kubectl -n "$NS" rollout restart deploy/ollama 2>/dev/null || true
       ;;
     all)
-      for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter kafka rabbitmq jaeger; do
+      for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter kafka rabbitmq jaeger; do
         restart_for_tool "$t"
       done
       ;;

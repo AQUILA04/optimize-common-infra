@@ -13,6 +13,10 @@ Source of truth: `optimize-common-infra/docs/NETWORKING.md`.
 | Vault | `vault` | 8200 |
 | MinIO | `minio` | 9000 / 9001 |
 | OTel | `otel-collector` | 4317 gRPC / 4318 HTTP |
+| Prometheus | `prometheus` | 9090 (UI via Traefik) |
+| Grafana | `grafana` | 3000 |
+| cAdvisor | `cadvisor` | 8080 |
+| redis-exporter | `redis-exporter` | 9121 |
 | Eureka | `eureka` | 8761 |
 | Gateway | `gateway` | 8080 |
 | Kafka | `kafka` | 9092 (profile) |

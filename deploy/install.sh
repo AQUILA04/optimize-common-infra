@@ -166,6 +166,8 @@ tool_services() {
     loki) echo loki ;;
     promtail) echo promtail ;;
     node-exporter) echo node-exporter ;;
+    cadvisor) echo cadvisor ;;
+    redis-exporter) echo redis-exporter ;;
     kafka) echo zookeeper kafka ;;
     rabbitmq) echo rabbitmq ;;
     jaeger) echo jaeger ;;
@@ -181,7 +183,7 @@ FORCE_SERVICES=()
 for tool in "${FORCE_TOOLS[@]}"; do
   if [[ "$tool" == "all" ]]; then
     # all excludes ollama
-    for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter kafka rabbitmq jaeger; do
+    for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter kafka rabbitmq jaeger; do
       # shellcheck disable=SC2207
       FORCE_SERVICES+=($(tool_services "$t"))
     done

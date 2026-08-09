@@ -7,11 +7,28 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 processors:
+  # Preserve / inject resource attrs used by Grafana (service.name from products)
+  resource:
+    attributes:
+      - key: service.namespace
+        value: optimizesolux
+        action: upsert
+  attributes:
+    actions:
+      - key: deployment.environment
+        action: insert
+        value: prod
   batch: {}
 
 exporters:
   prometheus:
     endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+  # Traces stay in logging until profile `tracing` (Jaeger) is enabled.
+  # To forward traces: install.sh --enable tracing, then point this exporter
+  # at jaeger:4317 (OTLP) and switch the traces pipeline exporter to otlp/jaeger.
+  # See docs/OBSERVABILITY.md.
   logging:
     loglevel: warn
 
@@ -23,13 +40,13 @@ service:
   pipelines:
     metrics:
       receivers: [otlp]
-      processors: [batch]
+      processors: [resource, attributes, batch]
       exporters: [prometheus]
     traces:
       receivers: [otlp]
-      processors: [batch]
+      processors: [resource, attributes, batch]
       exporters: [logging]
     logs:
       receivers: [otlp]
-      processors: [batch]
+      processors: [resource, attributes, batch]
       exporters: [logging]

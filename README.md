@@ -35,6 +35,7 @@ sudo /opt/optimizesolux/common-infra/install.sh --enable ai --force-update ollam
 |-----|---------|
 | [docs/SPEC.md](docs/SPEC.md) | Spec fonctionnelle |
 | [docs/NETWORKING.md](docs/NETWORKING.md) | Réseaux, hostnames, ports |
+| [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md) | Grafana / Prometheus / OTel / Loki (IaC) |
 | [docs/CONSUMER-GUIDE.md](docs/CONSUMER-GUIDE.md) | Brancher un produit |
 | [docs/MIGRATION-FROM-PRODUCTS.md](docs/MIGRATION-FROM-PRODUCTS.md) | Migrer depuis les compose produits |
 | [docs/VAULT.md](docs/VAULT.md) | Bootstrap Vault |
@@ -47,7 +48,7 @@ sudo /opt/optimizesolux/common-infra/install.sh --enable ai --force-update ollam
 | Profile | Défaut Contabo | Services |
 |---------|----------------|----------|
 | `core` | oui | redis, artemis, keycloak-db, keycloak, minio, mailpit, vault, pgadmin |
-| `observability` | oui | otel, prometheus, grafana, loki, promtail, node-exporter |
+| `observability` | oui | otel, prometheus, grafana, loki, promtail, node-exporter, cadvisor, redis-exporter |
 | `mesh` | oui | eureka, gateway |
 | `kafka` | non | zookeeper, kafka |
 | `rabbitmq` | non | rabbitmq |

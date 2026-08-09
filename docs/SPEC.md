@@ -19,7 +19,7 @@ Compose (default Contabo path) with a K8s mirror. Product compose files keep
 |-----------------|-------------|
 | Keycloak (multi-realm), Redis, Artemis | Postgres/Mongo **métier** |
 | MinIO, Mailpit, Vault, pgAdmin4 | API / frontend / workers |
-| OTel, Prometheus, Grafana, Loki, Promtail, node-exporter | Product-specific config |
+| OTel, Prometheus, Grafana, Loki, Promtail, node-exporter, cAdvisor, redis-exporter | Product-specific config + OTLP SDK |
 | Eureka, Spring Cloud Gateway | |
 | Kafka/Zookeeper, RabbitMQ, Jaeger (opt-in profiles) | |
 | Ollama (**manual `--enable ai` only**) | |

@@ -54,7 +54,7 @@ Read detail from that repo when available:
 | SMTP catcher / staging | `SMTP_HOST=mailpit` `SMTP_PORT=1025` |
 | Real outbound email | product choice (e.g. Resend) — OK; do not run a second Mailpit in product compose |
 | Vault | `VAULT_ADDR=http://vault:8200` |
-| OTel | `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` |
+| OTel | `OTEL_SERVICE_NAME={slug}-api` `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` `OTEL_RESOURCE_ATTRIBUTES=service.namespace=optimizesolux,deployment.environment=prod` |
 | MinIO | `MINIO_ENDPOINT=http://minio:9000` |
 
 ## Prod compose skeleton
@@ -74,6 +74,10 @@ services:
       REDIS_DATABASE: "{index}"
       ARTEMIS_BROKER_URL: tcp://artemis:61616
       OIDC_ISSUER_URI: https://auth.optimizesolux.com/realms/{slug}
+      OTEL_SERVICE_NAME: "{slug}-api"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=optimizesolux,deployment.environment=prod
     networks: [optimizesolux-common, traefik-public]
     # Traefik labels on traefik-public — same pattern as existing products
 

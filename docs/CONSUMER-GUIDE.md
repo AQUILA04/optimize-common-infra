@@ -22,9 +22,22 @@ Attach FE / API (public) to `traefik-public` for Traefik labels.
 | Keycloak issuer | `https://auth.optimizesolux.com/realms/{slug}` |
 | SMTP catcher | `SMTP_HOST=mailpit` `SMTP_PORT=1025` |
 | Vault | `VAULT_ADDR=http://vault:8200` or `https://vault.optimizesolux.com` |
-| OTel | `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` |
+| OTel | See [OBSERVABILITY.md](./OBSERVABILITY.md) — `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` |
 | MinIO | `MINIO_ENDPOINT=http://minio:9000` |
 | Eureka | `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/` |
+
+### OTel (required for app metrics / traces)
+
+```bash
+OTEL_SERVICE_NAME={slug}-api
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+OTEL_RESOURCE_ATTRIBUTES=service.namespace=optimizesolux,deployment.environment=prod
+```
+
+Container CPU/RAM and logs for product compose projects appear in Grafana automatically
+(cAdvisor + Promtail) as long as containers run on the same Contabo Docker host.
+Do **not** embed Prometheus/Grafana/Loki in the product Contabo compose.
 
 Redis DB index / key prefix: see [NETWORKING.md](./NETWORKING.md).
 

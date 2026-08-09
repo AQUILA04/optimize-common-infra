@@ -50,13 +50,51 @@ data:
   prometheus.yml: |
     global:
       scrape_interval: 15s
+      evaluation_interval: 15s
     scrape_configs:
       - job_name: prometheus
         static_configs:
           - targets: ["localhost:9090"]
+            labels:
+              instance: prometheus
+      - job_name: node-exporter
+        static_configs:
+          - targets: ["node-exporter:9100"]
+            labels:
+              instance: k8s-node
+      - job_name: cadvisor
+        static_configs:
+          - targets: ["cadvisor:8080"]
+            labels:
+              instance: k8s-node
       - job_name: otel-collector
         static_configs:
           - targets: ["otel-collector:8889"]
+            labels:
+              instance: otel-collector
+      - job_name: redis
+        static_configs:
+          - targets: ["redis-exporter:9121"]
+            labels:
+              instance: redis
+      - job_name: keycloak
+        metrics_path: /metrics
+        static_configs:
+          - targets: ["keycloak:8080"]
+            labels:
+              instance: keycloak
+      - job_name: minio
+        metrics_path: /minio/v2/metrics/cluster
+        static_configs:
+          - targets: ["minio:9000"]
+            labels:
+              instance: minio
+      - job_name: artemis
+        metrics_path: /metrics
+        static_configs:
+          - targets: ["artemis:8161"]
+            labels:
+              instance: artemis
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -254,13 +292,200 @@ data:
           http:
             endpoint: 0.0.0.0:4318
     processors:
+      resource:
+        attributes:
+          - key: service.namespace
+            value: optimizesolux
+            action: upsert
+      attributes:
+        actions:
+          - key: deployment.environment
+            action: insert
+            value: prod
       batch: {}
     exporters:
       prometheus:
         endpoint: 0.0.0.0:8889
+      logging:
+        loglevel: warn
+    extensions:
+      health_check: {}
     service:
+      extensions: [health_check]
       pipelines:
         metrics:
           receivers: [otlp]
-          processors: [batch]
+          processors: [resource, attributes, batch]
           exporters: [prometheus]
+        traces:
+          receivers: [otlp]
+          processors: [resource, attributes, batch]
+          exporters: [logging]
+        logs:
+          receivers: [otlp]
+          processors: [resource, attributes, batch]
+          exporters: [logging]
+---
+# cAdvisor — container metrics (Compose-parity; Contabo primary path is Docker Compose)
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cadvisor
+  namespace: optimizesolux-common
+spec:
+  selector:
+    matchLabels:
+      app: cadvisor
+  template:
+    metadata:
+      labels:
+        app: cadvisor
+    spec:
+      containers:
+        - name: cadvisor
+          image: gcr.io/cadvisor/cadvisor:v0.49.1
+          args:
+            - "--housekeeping_interval=30s"
+            - "--docker_only=false"
+          ports:
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: rootfs
+              mountPath: /rootfs
+              readOnly: true
+            - name: var-run
+              mountPath: /var/run
+              readOnly: true
+            - name: sys
+              mountPath: /sys
+              readOnly: true
+            - name: docker
+              mountPath: /var/lib/docker
+              readOnly: true
+          securityContext:
+            privileged: true
+      volumes:
+        - name: rootfs
+          hostPath:
+            path: /
+        - name: var-run
+          hostPath:
+            path: /var/run
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: docker
+          hostPath:
+            path: /var/lib/docker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cadvisor
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: cadvisor
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-exporter
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-exporter
+  template:
+    metadata:
+      labels:
+        app: redis-exporter
+    spec:
+      containers:
+        - name: redis-exporter
+          image: oliver006/redis_exporter:v1.62.0
+          env:
+            - name: REDIS_ADDR
+              value: redis://redis:6379
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oci-secrets
+                  key: REDIS_PASSWORD
+          ports:
+            - containerPort: 9121
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-exporter
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: redis-exporter
+  ports:
+    - port: 9121
+      targetPort: 9121
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: optimizesolux-common
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      hostPID: true
+      containers:
+        - name: node-exporter
+          image: prom/node-exporter:v1.8.0
+          args:
+            - "--path.procfs=/host/proc"
+            - "--path.sysfs=/host/sys"
+            - "--path.rootfs=/rootfs"
+            - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+          ports:
+            - containerPort: 9100
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: rootfs
+              mountPath: /rootfs
+              readOnly: true
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: rootfs
+          hostPath:
+            path: /
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: node-exporter
+  ports:
+    - port: 9100
+      targetPort: 9100

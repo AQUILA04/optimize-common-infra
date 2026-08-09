@@ -1,0 +1,116 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "expr": "{compose_project=~\"$compose_project\"} |= \"$search\"",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Live logs (filter)",
+      "type": "logs"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "sum by (compose_project, compose_service) (count_over_time({compose_project=~\"$compose_project\"} |= \"$search\" [$__interval]))",
+          "legendFormat": "{{compose_project}}/{{compose_service}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log volume by service",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 12 },
+      "id": 3,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "expr": "{compose_project=~\"$compose_project\", compose_service=~\"$compose_service\"} |= \"$search\"",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Container logs",
+      "type": "logs"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["optimizesolux", "loki", "logs"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "type": "loki", "uid": "loki" },
+        "definition": "label_values(compose_project)",
+        "includeAll": true,
+        "allValue": ".+",
+        "label": "compose_project",
+        "multi": true,
+        "name": "compose_project",
+        "query": "label_values(compose_project)",
+        "refresh": 2,
+        "type": "query"
+      },
+      {
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": { "type": "loki", "uid": "loki" },
+        "definition": "label_values({compose_project=~\"$compose_project\"}, compose_service)",
+        "includeAll": true,
+        "allValue": ".+",
+        "label": "compose_service",
+        "multi": true,
+        "name": "compose_service",
+        "query": "label_values({compose_project=~\"$compose_project\"}, compose_service)",
+        "refresh": 2,
+        "type": "query"
+      },
+      {
+        "current": { "selected": false, "text": "", "value": "" },
+        "label": "search",
+        "name": "search",
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Contabo VPS — Container logs",
+  "uid": "oci-logs-containers",
+  "version": 1
+}
