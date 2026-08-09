@@ -93,7 +93,8 @@ services:
       - artemis_data:/var/lib/artemis-instance
       - ./deploy/artemis/prepare-artemis.sh:/prepare-artemis.sh:ro
       - ./deploy/artemis/plugins:/opt/oci-artemis-plugins:ro
-    # Prepare metrics (or strip a broken metrics block), then stock entrypoint.
+    # Strip leftover Prometheus plugin config, then stock entrypoint.
+    # Broker metrics via cAdvisor — see docs/OBSERVABILITY.md.
     entrypoint: ["/bin/bash", "-c"]
     command:
       - |

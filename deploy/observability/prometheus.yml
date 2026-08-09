@@ -47,9 +47,6 @@ scrape_configs:
         labels:
           instance: keycloak
 
-  - job_name: artemis
-    metrics_path: /metrics
-    static_configs:
-      - targets: ["artemis:8161"]
-        labels:
-          instance: artemis
+  # Artemis broker /metrics (rh-messaging plugin) is not scraped: the upstream
+  # apache/activemq-artemis image does not reliably expose a Prometheus registry
+  # to the metrics war (404). Monitor the Artemis container via cAdvisor instead.

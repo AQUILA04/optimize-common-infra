@@ -82,20 +82,23 @@ App-level metrics/traces require the SDK + env vars above.
 
 ## Artemis metrics
 
-Compose runs `prepare-artemis.sh` before the stock `/docker-run.sh`:
+Broker-level Prometheus (`http://artemis:8161/metrics`) is **not** enabled on the
+upstream `apache/activemq-artemis` image: the rh-messaging plugin either fails to
+load or serves `/metrics` as HTTP 404 (Micrometer registry not visible to the war).
 
-- Installs the vendored Prometheus plugin when present (class
-  `com.redhat.amq.broker.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin`)
-- Rewrites/strips a wrong or broken `<metrics>` block (e.g. old `org.apache...` FQCN)
-  so Contabo does not crash-loop with `ClassNotFoundException`
+`prepare-artemis.sh` **strips** any leftover `<metrics>` / metrics app so the broker
+stays up after earlier experiments.
 
-After deploy, `artemis` must be **Up** (not Restarting). Then Prometheus
-`http://artemis:8161/metrics` can go green once the plugin is registered.
+Monitor Artemis via the **Docker containers** dashboard (cAdvisor): CPU/RAM/network
+of `optimizesolux-common-artemis-1`.
+
+Plugin JARs under `deploy/artemis/plugins/` are kept for a possible future custom
+image; they are not auto-wired into Contabo Compose.
 
 ```bash
 sudo /opt/optimizesolux/common-infra/install.sh --force-update artemis
+sudo /opt/optimizesolux/common-infra/install.sh --force-update prometheus
 docker ps --filter name=artemis
-docker logs optimizesolux-common-artemis-1 --tail 80
 ```
 
 ## Traces / Jaeger (opt-in)

@@ -30,10 +30,9 @@
         { "expr": "up{job=\"redis\"}", "legendFormat": "Redis", "refId": "A" },
         { "expr": "up{job=\"minio\"}", "legendFormat": "MinIO", "refId": "B" },
         { "expr": "up{job=\"keycloak\"}", "legendFormat": "Keycloak", "refId": "C" },
-        { "expr": "up{job=\"artemis\"}", "legendFormat": "Artemis", "refId": "D" },
-        { "expr": "up{job=\"otel-collector\"}", "legendFormat": "OTel", "refId": "E" },
-        { "expr": "up{job=\"node-exporter\"}", "legendFormat": "Node", "refId": "F" },
-        { "expr": "up{job=\"cadvisor\"}", "legendFormat": "cAdvisor", "refId": "G" }
+        { "expr": "up{job=\"otel-collector\"}", "legendFormat": "OTel", "refId": "D" },
+        { "expr": "up{job=\"node-exporter\"}", "legendFormat": "Node", "refId": "E" },
+        { "expr": "up{job=\"cadvisor\"}", "legendFormat": "cAdvisor", "refId": "F" }
       ],
       "title": "Common tools status",
       "type": "stat"
@@ -115,22 +114,17 @@
       "id": 6,
       "targets": [
         {
-          "expr": "artemis_address_memory_usage_percentage",
-          "legendFormat": "address mem %",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\".*artemis.*\"}[5m])) * 100",
+          "legendFormat": "CPU %",
           "refId": "A"
         },
         {
-          "expr": "artemis_connection_count",
-          "legendFormat": "connections",
+          "expr": "sum(container_memory_working_set_bytes{name=~\".*artemis.*\"})",
+          "legendFormat": "memory bytes",
           "refId": "B"
-        },
-        {
-          "expr": "artemis_total_message_count",
-          "legendFormat": "messages",
-          "refId": "C"
         }
       ],
-      "title": "Artemis broker",
+      "title": "Artemis container (cAdvisor)",
       "type": "timeseries"
     },
     {

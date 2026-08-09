@@ -89,12 +89,6 @@ data:
           - targets: ["minio:9000"]
             labels:
               instance: minio
-      - job_name: artemis
-        metrics_path: /metrics
-        static_configs:
-          - targets: ["artemis:8161"]
-            labels:
-              instance: artemis
 ---
 apiVersion: apps/v1
 kind: Deployment
