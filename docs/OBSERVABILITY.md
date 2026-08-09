@@ -80,15 +80,21 @@ Without any product change you already get:
 
 App-level metrics/traces require the SDK + env vars above.
 
-## Artemis metrics (optional)
+## Artemis metrics
 
-Compose uses the stock Artemis entrypoint (a custom wrap caused Contabo restart loops).
-Plugin artifacts remain under `deploy/artemis/plugins`. To enable `/metrics` on an
-existing broker:
+Compose runs `prepare-artemis.sh` before the stock `/docker-run.sh`:
+
+- Installs the vendored Prometheus plugin when present
+- **Strips** a broken `<metrics>` block if the JAR is missing (recovers Contabo
+  crash loops that left Prometheus with `lookup artemis … server misbehaving`)
+
+After deploy, `artemis` must be **Up** (not Restarting). Then Prometheus
+`http://artemis:8161/metrics` can go green once the plugin is registered.
 
 ```bash
-docker exec -u root optimizesolux-common-artemis-1 bash /enable-prometheus-metrics.sh
-docker restart optimizesolux-common-artemis-1
+sudo /opt/optimizesolux/common-infra/install.sh --force-update artemis
+docker ps --filter name=artemis
+docker logs optimizesolux-common-artemis-1 --tail 80
 ```
 
 ## Traces / Jaeger (opt-in)

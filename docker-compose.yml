@@ -91,11 +91,14 @@ services:
       ARTEMIS_PASSWORD: ${ARTEMIS_PASSWORD:?ARTEMIS_PASSWORD required}
     volumes:
       - artemis_data:/var/lib/artemis-instance
-      # Optional Prometheus plugin (applied when broker etc is writable; see deploy/artemis/)
-      - ./deploy/artemis/enable-prometheus-metrics.sh:/enable-prometheus-metrics.sh:ro
+      - ./deploy/artemis/prepare-artemis.sh:/prepare-artemis.sh:ro
       - ./deploy/artemis/plugins:/opt/oci-artemis-plugins:ro
-    # Stock entrypoint — custom wrap caused restart loops on Contabo.
-    # Metrics plugin can be applied manually: docker exec … bash /enable-prometheus-metrics.sh && restart.
+    # Prepare metrics (or strip a broken metrics block), then stock entrypoint.
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        /bin/bash /prepare-artemis.sh || true
+        exec /docker-run.sh run
     networks: *common-networks
     labels:
       - "traefik.enable=true"
