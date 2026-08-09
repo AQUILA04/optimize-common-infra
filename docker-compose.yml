@@ -432,7 +432,7 @@ services:
   # ---------------------------------------------------------------------------
   jaeger:
     profiles: ["tracing"]
-    image: jaegertracing/all-in-one:1.62
+    image: jaegertracing/all-in-one:1.62.0
     restart: unless-stopped
     environment:
       COLLECTOR_OTLP_ENABLED: "true"

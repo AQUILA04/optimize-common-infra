@@ -91,9 +91,12 @@ restart_for_tool() {
       kubectl -n "$NS" rollout restart deploy/ollama 2>/dev/null || true
       ;;
     all)
-      for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter kafka rabbitmq jaeger; do
+      for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter; do
         restart_for_tool "$t"
       done
+      has_profile kafka && restart_for_tool kafka
+      has_profile rabbitmq && restart_for_tool rabbitmq
+      has_profile tracing && restart_for_tool jaeger
       ;;
     *) echo "Unknown tool: $1" >&2; exit 1 ;;
   esac

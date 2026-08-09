@@ -7,7 +7,7 @@
 #
 # Default profiles: core observability mesh
 # Ollama (ai): NEVER enabled unless --enable ai
-# --force-update all: excludes ollama
+# --force-update all: excludes ollama; kafka/rabbitmq/jaeger only if their profiles are enabled
 # =============================================================================
 set -euo pipefail
 
@@ -182,11 +182,14 @@ tool_services() {
 FORCE_SERVICES=()
 for tool in "${FORCE_TOOLS[@]}"; do
   if [[ "$tool" == "all" ]]; then
-    # all excludes ollama
-    for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter kafka rabbitmq jaeger; do
+    # all excludes ollama; opt-in profiles only if enabled
+    for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter; do
       # shellcheck disable=SC2207
       FORCE_SERVICES+=($(tool_services "$t"))
     done
+    has_profile kafka && FORCE_SERVICES+=($(tool_services kafka))
+    has_profile rabbitmq && FORCE_SERVICES+=($(tool_services rabbitmq))
+    has_profile tracing && FORCE_SERVICES+=($(tool_services jaeger))
   elif [[ "$tool" == "ollama" ]]; then
     if ! has_profile ai; then
       echo "ERROR: --force-update ollama requires --enable ai" >&2
@@ -194,6 +197,11 @@ for tool in "${FORCE_TOOLS[@]}"; do
     fi
     FORCE_SERVICES+=(ollama)
   else
+    case "$tool" in
+      kafka) has_profile kafka || { echo "ERROR: --force-update kafka requires --enable kafka" >&2; exit 1; } ;;
+      rabbitmq) has_profile rabbitmq || { echo "ERROR: --force-update rabbitmq requires --enable rabbitmq" >&2; exit 1; } ;;
+      jaeger) has_profile tracing || { echo "ERROR: --force-update jaeger requires --enable tracing" >&2; exit 1; } ;;
+    esac
     svcs="$(tool_services "$tool")"
     if [[ -z "$svcs" ]]; then
       echo "ERROR: unknown tool '$tool'" >&2
