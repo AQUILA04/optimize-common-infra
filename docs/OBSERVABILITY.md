@@ -123,19 +123,22 @@ Jaeger UI: `https://jaeger.optimizesolux.com`.
 
 ## Troubleshooting Grafana "No data" (Docker containers)
 
-1. Confirm targets: `https://prometheus.optimizesolux.com/targets` — `cadvisor` must be UP.
-2. Quick check from the VPS:
-   ```bash
-   docker exec optimizesolux-common-prometheus-1 wget -qO- http://cadvisor:8080/metrics | head
-   docker exec optimizesolux-common-prometheus-1 wget -qO- 'http://localhost:9090/api/v1/query?query=container_memory_working_set_bytes' | head -c 500
+Logs (Loki) can work while this dashboard is empty: Promtail reads Docker logs;
+container CPU/RAM need **cAdvisor → Prometheus**.
+
+1. Targets: `https://prometheus.optimizesolux.com/targets` — job `cadvisor` UP.
+2. In Grafana Explore (Prometheus), run:
+   ```promql
+   count({__name__=~"container_.*", job="cadvisor"})
+   container_memory_working_set_bytes{job="cadvisor", id!="/"}
    ```
-3. Recreate collectors after sync:
+   If the first query is 0, cAdvisor is not exporting container series (Docker/containerd
+   mounts). If it returns series but the dashboard is empty, force-update Grafana.
+3. Recreate:
    ```bash
    sudo /opt/optimizesolux/common-infra/install.sh --force-update cadvisor
    sudo /opt/optimizesolux/common-infra/install.sh --force-update prometheus
    sudo /opt/optimizesolux/common-infra/install.sh --force-update grafana
-   sudo /opt/optimizesolux/common-infra/install.sh --force-update otel
-   sudo /opt/optimizesolux/common-infra/install.sh --force-update artemis
    ```
 
 ## Follow-ups (out of this repo)

@@ -309,6 +309,7 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
       - /sys:/sys:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /var/lib/docker/:/var/lib/docker:ro
@@ -316,9 +317,11 @@ services:
     command:
       - "--housekeeping_interval=15s"
       - "--docker_only=true"
-      - "--enable_metrics=cpu,memory,network,disk,diskIO,oom_event"
+      - "--containerd=/run/containerd/containerd.sock"
+      - "--containerd-namespace=moby"
+      # Do not override enable_metrics with a narrow list — defaults already cover cpu/memory/network.
       - "--store_container_labels=true"
-      - "--whitelisted_container_labels=com.docker.compose.project,com.docker.compose.service,com.docker.compose.container-number,com.docker.compose.project.working_dir"
+      - "--whitelisted_container_labels=com.docker.compose.project,com.docker.compose.service,com.docker.compose.container-number"
     networks:
       - optimizesolux-common
 
