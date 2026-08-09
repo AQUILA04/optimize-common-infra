@@ -91,19 +91,11 @@ services:
       ARTEMIS_PASSWORD: ${ARTEMIS_PASSWORD:?ARTEMIS_PASSWORD required}
     volumes:
       - artemis_data:/var/lib/artemis-instance
+      # Optional Prometheus plugin (applied when broker etc is writable; see deploy/artemis/)
       - ./deploy/artemis/enable-prometheus-metrics.sh:/enable-prometheus-metrics.sh:ro
       - ./deploy/artemis/plugins:/opt/oci-artemis-plugins:ro
-    entrypoint: ["/bin/bash", "-c"]
-    command:
-      - |
-        set -euo pipefail
-        cd /var/lib/artemis-instance
-        if [[ ! -f ./etc/broker.xml ]]; then
-          LOGIN_OPTION="--require-login"
-          /opt/activemq-artemis/bin/artemis create --user "$${ARTEMIS_USER}" --password "$${ARTEMIS_PASSWORD}" --silent $${LOGIN_OPTION} .
-        fi
-        bash /enable-prometheus-metrics.sh
-        exec ./bin/artemis run
+    # Stock entrypoint — custom wrap caused restart loops on Contabo.
+    # Metrics plugin can be applied manually: docker exec … bash /enable-prometheus-metrics.sh && restart.
     networks: *common-networks
     labels:
       - "traefik.enable=true"
@@ -312,14 +304,17 @@ services:
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/sys:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     command:
-      - "--housekeeping_interval=30s"
+      - "--housekeeping_interval=15s"
       - "--docker_only=true"
-      - "--store_container_labels=false"
-      - "--whitelisted_container_labels=com.docker.compose.project,com.docker.compose.service,com.docker.compose.container-number"
+      - "--enable_metrics=cpu,memory,network,disk,diskIO,oom_event"
+      - "--store_container_labels=true"
+      - "--whitelisted_container_labels=com.docker.compose.project,com.docker.compose.service,com.docker.compose.container-number,com.docker.compose.project.working_dir"
     networks:
       - optimizesolux-common
 

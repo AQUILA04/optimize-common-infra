@@ -80,9 +80,20 @@ Without any product change you already get:
 
 App-level metrics/traces require the SDK + env vars above.
 
+## Artemis metrics (optional)
+
+Compose uses the stock Artemis entrypoint (a custom wrap caused Contabo restart loops).
+Plugin artifacts remain under `deploy/artemis/plugins`. To enable `/metrics` on an
+existing broker:
+
+```bash
+docker exec -u root optimizesolux-common-artemis-1 bash /enable-prometheus-metrics.sh
+docker restart optimizesolux-common-artemis-1
+```
+
 ## Traces / Jaeger (opt-in)
 
-Default OTel traces pipeline uses the `logging` exporter (no Jaeger dependency).
+Default OTel traces/logs pipelines use the `debug` exporter (no Jaeger dependency).
 
 To enable UI traces:
 
@@ -99,6 +110,23 @@ sudo /opt/optimizesolux/common-infra/install.sh --force-update otel
 ```
 
 Jaeger UI: `https://jaeger.optimizesolux.com`.
+
+## Troubleshooting Grafana "No data" (Docker containers)
+
+1. Confirm targets: `https://prometheus.optimizesolux.com/targets` — `cadvisor` must be UP.
+2. Quick check from the VPS:
+   ```bash
+   docker exec optimizesolux-common-prometheus-1 wget -qO- http://cadvisor:8080/metrics | head
+   docker exec optimizesolux-common-prometheus-1 wget -qO- 'http://localhost:9090/api/v1/query?query=container_memory_working_set_bytes' | head -c 500
+   ```
+3. Recreate collectors after sync:
+   ```bash
+   sudo /opt/optimizesolux/common-infra/install.sh --force-update cadvisor
+   sudo /opt/optimizesolux/common-infra/install.sh --force-update prometheus
+   sudo /opt/optimizesolux/common-infra/install.sh --force-update grafana
+   sudo /opt/optimizesolux/common-infra/install.sh --force-update otel
+   sudo /opt/optimizesolux/common-infra/install.sh --force-update artemis
+   ```
 
 ## Follow-ups (out of this repo)
 

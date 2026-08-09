@@ -14,7 +14,7 @@
       "options": { "colorMode": "none", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
       "targets": [
         {
-          "expr": "count(container_last_seen{name=~\".+\",name!~\".*cadvisor.*\"})",
+          "expr": "count(container_memory_working_set_bytes{name!=\"\", image!=\"\"})",
           "legendFormat": "containers",
           "refId": "A"
         }
@@ -29,7 +29,7 @@
       "id": 2,
       "targets": [
         {
-          "expr": "sum by (name, container_label_com_docker_compose_project, container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{name=~\".+\",name!~\".*cadvisor.*|.*prometheus.*\"}[5m])) * 100",
+          "expr": "sum by (name, container_label_com_docker_compose_project, container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{name!=\"\", image!=\"\"}[5m])) * 100",
           "legendFormat": "{{container_label_com_docker_compose_project}}/{{container_label_com_docker_compose_service}} {{name}}",
           "refId": "A"
         }
@@ -44,7 +44,7 @@
       "id": 3,
       "targets": [
         {
-          "expr": "sum by (name, container_label_com_docker_compose_project, container_label_com_docker_compose_service) (container_memory_working_set_bytes{name=~\".+\",name!~\".*cadvisor.*\"})",
+          "expr": "sum by (name, container_label_com_docker_compose_project, container_label_com_docker_compose_service) (container_memory_working_set_bytes{name!=\"\", image!=\"\"})",
           "legendFormat": "{{container_label_com_docker_compose_project}}/{{container_label_com_docker_compose_service}} {{name}}",
           "refId": "A"
         }
@@ -59,12 +59,12 @@
       "id": 4,
       "targets": [
         {
-          "expr": "sum by (name) (rate(container_network_receive_bytes_total{name=~\".+\"}[5m]))",
+          "expr": "sum by (name) (rate(container_network_receive_bytes_total{name!=\"\", image!=\"\"}[5m]))",
           "legendFormat": "rx {{name}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (name) (rate(container_network_transmit_bytes_total{name=~\".+\"}[5m]))",
+          "expr": "sum by (name) (rate(container_network_transmit_bytes_total{name!=\"\", image!=\"\"}[5m]))",
           "legendFormat": "tx {{name}}",
           "refId": "B"
         }
@@ -74,36 +74,18 @@
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
       "gridPos": { "h": 9, "w": 12, "x": 12, "y": 14 },
       "id": 5,
       "targets": [
         {
-          "expr": "sort_desc(sum by (container_label_com_docker_compose_project) (container_memory_working_set_bytes{name=~\".+\",container_label_com_docker_compose_project=~\".+\"}))",
-          "legendFormat": "{{container_label_com_docker_compose_project}}",
-          "refId": "A",
-          "instant": true,
-          "format": "table"
+          "expr": "sort_desc(sum by (name) (container_memory_working_set_bytes{name!=\"\", image!=\"\"}))",
+          "legendFormat": "{{name}}",
+          "refId": "A"
         }
       ],
-      "title": "Memory by compose project",
-      "type": "table",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": { "Time": true },
-            "renameByName": {
-              "container_label_com_docker_compose_project": "project",
-              "Value": "memory_bytes"
-            }
-          }
-        }
-      ]
+      "title": "Memory by container",
+      "type": "timeseries"
     }
   ],
   "schemaVersion": 39,
@@ -113,12 +95,12 @@
       {
         "current": { "selected": true, "text": "All", "value": "$__all" },
         "datasource": { "type": "prometheus", "uid": "prometheus" },
-        "definition": "label_values(container_memory_working_set_bytes, container_label_com_docker_compose_project)",
+        "definition": "label_values(container_memory_working_set_bytes{name!=\"\", image!=\"\"}, container_label_com_docker_compose_project)",
         "includeAll": true,
         "label": "compose_project",
         "multi": true,
         "name": "compose_project",
-        "query": { "query": "label_values(container_memory_working_set_bytes, container_label_com_docker_compose_project)", "refId": "StandardVariableQuery" },
+        "query": { "query": "label_values(container_memory_working_set_bytes{name!=\"\", image!=\"\"}, container_label_com_docker_compose_project)", "refId": "StandardVariableQuery" },
         "refresh": 2,
         "regex": "",
         "type": "query"
@@ -128,5 +110,5 @@
   "time": { "from": "now-1h", "to": "now" },
   "title": "Contabo VPS — Docker containers",
   "uid": "oci-docker-containers",
-  "version": 1
+  "version": 3
 }

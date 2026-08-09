@@ -306,8 +306,8 @@ data:
     exporters:
       prometheus:
         endpoint: 0.0.0.0:8889
-      logging:
-        loglevel: warn
+      debug:
+        verbosity: basic
     extensions:
       health_check: {}
     service:
@@ -320,11 +320,11 @@ data:
         traces:
           receivers: [otlp]
           processors: [resource, attributes, batch]
-          exporters: [logging]
+          exporters: [debug]
         logs:
           receivers: [otlp]
           processors: [resource, attributes, batch]
-          exporters: [logging]
+          exporters: [debug]
 ---
 # cAdvisor — container metrics (Compose-parity; Contabo primary path is Docker Compose)
 apiVersion: apps/v1
@@ -345,8 +345,9 @@ spec:
         - name: cadvisor
           image: gcr.io/cadvisor/cadvisor:v0.49.1
           args:
-            - "--housekeeping_interval=30s"
+            - "--housekeeping_interval=15s"
             - "--docker_only=false"
+            - "--enable_metrics=cpu,memory,network,disk,diskIO,oom_event"
           ports:
             - containerPort: 8080
               name: http
@@ -363,6 +364,9 @@ spec:
             - name: docker
               mountPath: /var/lib/docker
               readOnly: true
+            - name: cgroup
+              mountPath: /sys/fs/cgroup
+              readOnly: true
           securityContext:
             privileged: true
       volumes:
@@ -378,6 +382,9 @@ spec:
         - name: docker
           hostPath:
             path: /var/lib/docker
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
 ---
 apiVersion: v1
 kind: Service

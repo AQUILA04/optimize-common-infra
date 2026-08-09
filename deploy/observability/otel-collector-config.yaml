@@ -7,7 +7,6 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 processors:
-  # Preserve / inject resource attrs used by Grafana (service.name from products)
   resource:
     attributes:
       - key: service.namespace
@@ -25,12 +24,10 @@ exporters:
     endpoint: 0.0.0.0:8889
     resource_to_telemetry_conversion:
       enabled: true
-  # Traces stay in logging until profile `tracing` (Jaeger) is enabled.
-  # To forward traces: install.sh --enable tracing, then point this exporter
-  # at jaeger:4317 (OTLP) and switch the traces pipeline exporter to otlp/jaeger.
-  # See docs/OBSERVABILITY.md.
-  logging:
-    loglevel: warn
+  # Traces/logs stay on debug until profile `tracing` (Jaeger) is enabled.
+  # See docs/OBSERVABILITY.md to forward traces to jaeger:4317.
+  debug:
+    verbosity: basic
 
 extensions:
   health_check: {}
@@ -45,8 +42,8 @@ service:
     traces:
       receivers: [otlp]
       processors: [resource, attributes, batch]
-      exporters: [logging]
+      exporters: [debug]
     logs:
       receivers: [otlp]
       processors: [resource, attributes, batch]
-      exporters: [logging]
+      exporters: [debug]
