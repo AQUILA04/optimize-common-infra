@@ -2,6 +2,7 @@
 # Safe Artemis prep before stock /docker-run.sh:
 # - Install Prometheus plugin when artifacts are present
 # - Strip metrics config if plugin JAR is missing (recovers crash loops)
+# - Use the Red Hat plugin FQCN (com.redhat.amq...), not org.apache...
 # Always exits 0 so the broker can start.
 set +e
 
@@ -14,10 +15,11 @@ WEB_DIR="${INSTANCE}/web"
 PLUGIN_SRC="${ARTEMIS_PLUGIN_SRC:-/opt/oci-artemis-plugins}"
 PLUGIN_VER="${ARTEMIS_PROMETHEUS_PLUGIN_VERSION:-3.1.0}"
 PLUGIN_JAR="artemis-prometheus-metrics-plugin-${PLUGIN_VER}.jar"
-PLUGIN_CLASS="org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"
+# Class inside rh-messaging / Red Hat uber-jar (NOT org.apache...)
+PLUGIN_CLASS="com.redhat.amq.broker.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"
 
 strip_metrics() {
-  if [[ -f "${BROKER}" ]] && grep -q "ArtemisPrometheusMetricsPlugin\|<metrics>" "${BROKER}"; then
+  if [[ -f "${BROKER}" ]] && grep -qE 'ArtemisPrometheusMetricsPlugin|<metrics>' "${BROKER}"; then
     tmp="$(mktemp)"
     awk '
       BEGIN { skip=0 }
@@ -44,13 +46,15 @@ mkdir -p "${LIB_DIR}" "${WEB_DIR}"
 
 # Install vendored artifacts when available
 if [[ -f "${PLUGIN_SRC}/${PLUGIN_JAR}" ]]; then
-  cp -f "${PLUGIN_SRC}/${PLUGIN_JAR}" "${LIB_DIR}/${PLUGIN_JAR}" 2>/dev/null \
-    || cp -f "${PLUGIN_SRC}/${PLUGIN_JAR}" "${LIB_DIR}/${PLUGIN_JAR}"
-  echo "prepare-artemis: installed ${PLUGIN_JAR}"
+  if cp -f "${PLUGIN_SRC}/${PLUGIN_JAR}" "${LIB_DIR}/${PLUGIN_JAR}"; then
+    echo "prepare-artemis: installed ${PLUGIN_JAR} -> ${LIB_DIR}/"
+  else
+    echo "prepare-artemis: WARNING failed to copy ${PLUGIN_JAR}" >&2
+  fi
 fi
 if [[ -f "${PLUGIN_SRC}/metrics.war" ]]; then
-  cp -f "${PLUGIN_SRC}/metrics.war" "${WEB_DIR}/metrics.war" 2>/dev/null || true
-  echo "prepare-artemis: installed metrics.war"
+  cp -f "${PLUGIN_SRC}/metrics.war" "${WEB_DIR}/metrics.war" && \
+    echo "prepare-artemis: installed metrics.war"
 fi
 
 if [[ ! -f "${LIB_DIR}/${PLUGIN_JAR}" ]]; then
@@ -59,8 +63,16 @@ if [[ ! -f "${LIB_DIR}/${PLUGIN_JAR}" ]]; then
   exit 0
 fi
 
+# Replace any wrong/old metrics plugin class (e.g. org.apache...) with the Red Hat FQCN
+if grep -q "ArtemisPrometheusMetricsPlugin" "${BROKER}"; then
+  if ! grep -q "${PLUGIN_CLASS}" "${BROKER}"; then
+    echo "prepare-artemis: rewriting metrics plugin class to ${PLUGIN_CLASS}"
+    strip_metrics
+  fi
+fi
+
 # Inject metrics plugin once
-if ! grep -q "ArtemisPrometheusMetricsPlugin" "${BROKER}"; then
+if ! grep -q "${PLUGIN_CLASS}" "${BROKER}"; then
   if grep -q "</core>" "${BROKER}"; then
     tmp="$(mktemp)"
     awk -v plugin="${PLUGIN_CLASS}" '

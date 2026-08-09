@@ -84,9 +84,10 @@ App-level metrics/traces require the SDK + env vars above.
 
 Compose runs `prepare-artemis.sh` before the stock `/docker-run.sh`:
 
-- Installs the vendored Prometheus plugin when present
-- **Strips** a broken `<metrics>` block if the JAR is missing (recovers Contabo
-  crash loops that left Prometheus with `lookup artemis … server misbehaving`)
+- Installs the vendored Prometheus plugin when present (class
+  `com.redhat.amq.broker.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin`)
+- Rewrites/strips a wrong or broken `<metrics>` block (e.g. old `org.apache...` FQCN)
+  so Contabo does not crash-loop with `ClassNotFoundException`
 
 After deploy, `artemis` must be **Up** (not Restarting). Then Prometheus
 `http://artemis:8161/metrics` can go green once the plugin is registered.
