@@ -6,7 +6,7 @@
 2. Common stack installed: `sudo /opt/optimizesolux/common-infra/install.sh`
 3. Secrets filled in `/opt/optimizesolux/common-infra/.env`
 4. Vault initialized ([VAULT.md](./VAULT.md))
-5. DNS for tool hosts + product hosts (grey cloud)
+5. DNS for tool hosts + product hosts (Cloudflare **Proxied** / orange + SSL Full; requires shared-traefik DNS-01)
 
 ## Per product
 

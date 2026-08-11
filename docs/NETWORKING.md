@@ -88,6 +88,7 @@ Do **not** publish Postgres on the host; keep it internal.
 | landreg | `3` | `landreg:` |
 | omnishop | `4` | `omnishop:` |
 | mqms | `5` | `mqms:` |
+| ehealth | `6` | `ehealth:` |
 
 ## Communication flow
 

@@ -47,6 +47,11 @@ scrape_configs:
         labels:
           instance: keycloak
 
-  # Artemis broker /metrics (rh-messaging plugin) is not scraped: the upstream
-  # apache/activemq-artemis image does not reliably expose a Prometheus registry
-  # to the metrics war (404). Monitor the Artemis container via cAdvisor instead.
+  - job_name: elykia-backend
+    metrics_path: /actuator/prometheus
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["elykia-backend:8080"]
+        labels:
+          instance: elykia-prod
+          product: elykia

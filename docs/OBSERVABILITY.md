@@ -78,6 +78,15 @@ Without any product change you already get:
 - Container CPU/RAM/network in **Docker containers** (cAdvisor)
 - Stdout/stderr in **Container logs** (Promtail → Loki)
 
+### Elykia business metrics
+
+Prometheus scrapes `elykia-backend:8080/actuator/prometheus` on `optimizesolux-common`
+(job `elykia-backend` in `deploy/observability/prometheus.yml`). The Contabo compose
+must publish the API container as hostname `elykia-backend`.
+
+Import product dashboards from the ELYKIA repo (`deploy/monitoring/grafana/dashboards/`)
+into Grafana folder **OptimizeSolux** / **Elykia** as needed.
+
 App-level metrics/traces require the SDK + env vars above.
 
 ## Artemis metrics

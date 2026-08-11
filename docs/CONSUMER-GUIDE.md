@@ -72,7 +72,8 @@ Rebuild Keycloak image via CI, then:
 sudo /opt/optimizesolux/common-infra/install.sh --force-update keycloak
 ```
 
-## 6. DNS (grey cloud)
+## 6. DNS (Cloudflare Proxied)
 
-Product hosts still point to the Contabo VPS IP.
+Product hosts still point to the Contabo VPS IP with **Proxy enabled** (orange cloud)
+and SSL mode **Full**, provided `shared-traefik` uses Cloudflare DNS-01 (`CF_DNS_API_TOKEN`).
 Shared tool UIs: `auth`, `vault`, `grafana`, `mail`, `pgadmin`, `s3`, …

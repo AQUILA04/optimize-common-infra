@@ -102,6 +102,8 @@ for net in traefik-public optimizesolux-common; do
 done
 
 mkdir -p "$ROOT/vault/data" "$ROOT/vault/keys"
+# hashicorp/vault runs as uid/gid 100; host-owned dirs cause "permission denied" on /vault/data
+chown -R 100:100 "$ROOT/vault/data" 2>/dev/null || true
 chmod 700 "$ROOT/vault/data" "$ROOT/vault/keys" || true
 
 if [[ ! -f "$ROOT/.env" ]]; then

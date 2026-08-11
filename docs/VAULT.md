@@ -55,3 +55,25 @@ Store `role_id` / `secret_id` in the product server env (or CI secrets), never i
 ## After reboot
 
 Vault starts **sealed**. Unseal with 3 keys before apps that depend on it.
+
+## Troubleshooting: `permission denied` on `/vault/data`
+
+Symptom:
+
+```text
+storage migration check error: error="open /vault/data/core/_migration: permission denied"
+```
+
+Cause: the Vault container runs as UID **100**, but `vault/data` on the host was created as root (or another user).
+
+Fix on Contabo:
+
+```bash
+sudo chown -R 100:100 /opt/optimizesolux/common-infra/vault/data
+sudo chmod 700 /opt/optimizesolux/common-infra/vault/data
+docker compose -f /opt/optimizesolux/common-infra/docker-compose.yml \
+  --project-name optimizesolux-common --env-file /opt/optimizesolux/common-infra/.env \
+  --profile core restart vault
+```
+
+Then unseal again if needed.

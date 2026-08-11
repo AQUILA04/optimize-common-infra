@@ -1,0 +1,359 @@
+{
+  "realm": "ehealth",
+  "displayName": "eHealth - SIH",
+  "displayNameHtml": "<b>eHealth</b> SIH",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "defaultSignatureAlgorithm": "RS256",
+
+  "roles": {
+    "realm": [
+      {
+        "name": "MEDECIN",
+        "description": "Médecin — accès complet au DPI, prescriptions, diagnostics",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "INFIRMIER",
+        "description": "Infirmier(ère) — constantes vitales, administration médicaments (eMAR)",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "BIOLOGISTE",
+        "description": "Biologiste — résultats de laboratoire, validation",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "RADIOLOGUE",
+        "description": "Radiologue — comptes-rendus radiologiques, PACS",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "PHARMACIEN",
+        "description": "Pharmacien — validation des ordonnances, dispensation",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "ADMIN_GAP",
+        "description": "Administratif GAP — admissions, sorties, gestion administrative",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "COMPTABLE",
+        "description": "Comptable — facturation uniquement, pas d'accès aux diagnostics",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "PATIENT",
+        "description": "Patient — portail patient, résultats, rendez-vous",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "ADMIN_SYSTEM",
+        "description": "Administrateur système — gestion des tenants et configuration",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "SUPER_ADMIN",
+        "description": "Super administrateur système",
+        "composite": true,
+        "composites": {
+          "realm": ["MEDECIN", "INFIRMIER", "BIOLOGISTE", "RADIOLOGUE", "PHARMACIEN", "ADMIN_GAP", "COMPTABLE", "ADMIN_SYSTEM"]
+        },
+        "clientRole": false
+      }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "gap-service",
+      "name": "GAP Service",
+      "description": "Gestion Administrative du Patient — Module I",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "gap-service-secret-dev",
+      "bearerOnly": false,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "access.token.lifespan": "300"
+      },
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access"]
+    },
+    {
+      "clientId": "dpi-service",
+      "name": "DPI Service",
+      "description": "Dossier Patient Informatisé — Module II",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "dpi-service-secret-dev",
+      "bearerOnly": false,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "access.token.lifespan": "300"
+      },
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access"]
+    },
+    {
+      "clientId": "empi-service",
+      "name": "EMPI Service",
+      "description": "Enterprise Master Patient Index",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "empi-service-secret-dev",
+      "bearerOnly": false,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access"]
+    },
+    {
+      "clientId": "ehealth-frontend",
+      "name": "eHealth Frontend",
+      "description": "Application frontend React",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:5173/*",
+        "https://ehealth.optimizesolux.com/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://ehealth.optimizesolux.com"
+      ],
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access"]
+    },
+    {
+      "clientId": "ehealth-swagger",
+      "name": "Swagger UI",
+      "description": "Client public pour Swagger UI / tests API",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:8081/*",
+        "http://localhost:8082/*",
+        "http://localhost:8083/*"
+      ],
+      "webOrigins": ["*"],
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access"]
+    }
+  ],
+
+  "users": [
+    {
+      "username": "dr.dupont",
+      "email": "dr.dupont@ehealth.sih",
+      "firstName": "Jean",
+      "lastName": "Dupont",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["MEDECIN"],
+      "attributes": {
+        "specialite": ["Médecine Interne"],
+        "matricule": ["MED-001"]
+      }
+    },
+    {
+      "username": "inf.martin",
+      "email": "inf.martin@ehealth.sih",
+      "firstName": "Sophie",
+      "lastName": "Martin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["INFIRMIER"],
+      "attributes": {
+        "service": ["Médecine Interne"],
+        "matricule": ["INF-001"]
+      }
+    },
+    {
+      "username": "admin.gap",
+      "email": "admin.gap@ehealth.sih",
+      "firstName": "Marie",
+      "lastName": "Leclerc",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN_GAP"],
+      "attributes": {
+        "service": ["Admissions"],
+        "matricule": ["ADM-001"]
+      }
+    },
+    {
+      "username": "pharmacien.durand",
+      "email": "pharmacien.durand@ehealth.sih",
+      "firstName": "Pierre",
+      "lastName": "Durand",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["PHARMACIEN"],
+      "attributes": {
+        "service": ["Pharmacie"],
+        "matricule": ["PHA-001"]
+      }
+    },
+    {
+      "username": "biologiste.petit",
+      "email": "biologiste.petit@ehealth.sih",
+      "firstName": "Claire",
+      "lastName": "Petit",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["BIOLOGISTE"],
+      "attributes": {
+        "service": ["Laboratoire"],
+        "matricule": ["BIO-001"]
+      }
+    },
+    {
+      "username": "admin.system",
+      "email": "admin.system@ehealth.sih",
+      "firstName": "Admin",
+      "lastName": "Système",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin1234!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SUPER_ADMIN", "ADMIN_SYSTEM"],
+      "attributes": {
+        "matricule": ["SYS-001"]
+      }
+    }
+  ],
+
+  "scopeMappings": [],
+
+  "clientScopeMappings": {},
+
+  "identityProviders": [],
+
+  "components": {
+    "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
+      {
+        "name": "Allowed Client Scopes",
+        "providerId": "allowed-client-templates",
+        "subType": "anonymous",
+        "config": {
+          "allow-default-scopes": ["true"]
+        }
+      }
+    ]
+  },
+
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fr", "en"],
+  "defaultLocale": "fr",
+
+  "loginTheme": "keycloak",
+  "accountTheme": "keycloak.v3",
+  "adminTheme": "keycloak.v2",
+  "emailTheme": "keycloak",
+
+  "eventsEnabled": true,
+  "eventsListeners": ["jboss-logging"],
+  "enabledEventTypes": [
+    "LOGIN", "LOGIN_ERROR", "LOGOUT", "LOGOUT_ERROR",
+    "REGISTER", "REGISTER_ERROR",
+    "TOKEN_EXCHANGE", "CODE_TO_TOKEN", "CODE_TO_TOKEN_ERROR",
+    "CLIENT_LOGIN", "CLIENT_LOGIN_ERROR"
+  ],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true
+}
