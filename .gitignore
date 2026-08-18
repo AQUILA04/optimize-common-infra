@@ -14,6 +14,7 @@ Thumbs.db
 # Vault unseal / init output (never commit)
 vault/keys/
 vault/init.json
+private/
 **/unseal*
 
 # Logs
