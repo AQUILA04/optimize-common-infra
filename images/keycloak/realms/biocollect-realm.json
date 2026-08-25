@@ -1,0 +1,65 @@
+{
+  "realm": "biocollect",
+  "enabled": true,
+  "displayName": "BioCollect",
+  "displayNameHtml": "<b>BioCollect</b>",
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "defaultSignatureAlgorithm": "RS256",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fr", "en"],
+  "defaultLocale": "fr",
+  "loginTheme": "biocollect",
+  "accountTheme": "keycloak.v3",
+  "emailTheme": "keycloak",
+  "clients": [
+    {
+      "clientId": "biocollect-web",
+      "name": "BioCollect Web",
+      "description": "SPA BioCollect — public client with PKCE",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "https://biocollect.optimizesolux.com/api/oauth/callback",
+        "http://localhost:3000/api/oauth/callback",
+        "http://localhost:5173/api/oauth/callback",
+        "http://127.0.0.1:3000/api/oauth/callback",
+        "http://127.0.0.1:5173/api/oauth/callback"
+      ],
+      "webOrigins": [
+        "https://biocollect.optimizesolux.com",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://biocollect.optimizesolux.com/*##http://localhost:3000/*##http://localhost:5173/*"
+      },
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access"]
+    }
+  ]
+}
