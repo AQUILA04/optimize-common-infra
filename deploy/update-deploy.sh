@@ -18,6 +18,7 @@ cp -a /tmp/optimize-common-infra_src/deploy/. "$ROOT/deploy.new/"
 cp -a /tmp/optimize-common-infra_src/docker-compose.yml "$ROOT/deploy.new/docker-compose.yml"
 cp -a /tmp/optimize-common-infra_src/images "$ROOT/deploy.new/images" 2>/dev/null || true
 cp -a /tmp/optimize-common-infra_src/install.sh "$ROOT/deploy.new/install.sh"
+cp -a /tmp/optimize-common-infra_src/scripts "$ROOT/deploy.new/scripts" 2>/dev/null || true
 cp -a /tmp/optimize-common-infra_src/k8s "$ROOT/deploy.new/k8s" 2>/dev/null || true
 rm -rf /tmp/optimize-common-infra_src
 
@@ -38,5 +39,7 @@ cp -a "$ROOT/deploy/install.sh" "$ROOT/install.sh"
 chmod +x "$ROOT/install.sh"
 rm -rf "$ROOT/images"
 cp -a "$ROOT/deploy/images" "$ROOT/images" 2>/dev/null || true
+rm -rf "$ROOT/scripts"
+cp -a "$ROOT/deploy/scripts" "$ROOT/scripts" 2>/dev/null || true
 
 echo ">>> [update-deploy] Done."

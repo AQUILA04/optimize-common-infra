@@ -59,6 +59,8 @@ services:
       KC_SPI_THEME_WELCOME_THEME: ${KC_SPI_THEME_WELCOME_THEME:-optimizesolux}
     volumes:
       - ./images/keycloak/realms:/opt/keycloak/data/import:ro
+      # Themes synced from git on force-update — no image rebuild required for CSS/FTL tweaks.
+      - ./images/keycloak/themes:/opt/keycloak/themes:ro
     networks: *common-networks
     labels:
       - "traefik.enable=true"
