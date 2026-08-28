@@ -224,9 +224,9 @@ if [[ ${#FORCE_SERVICES[@]} -gt 0 ]]; then
   compose up -d --force-recreate --no-deps "${FORCE_SERVICES[@]}"
 
   if printf '%s\n' "${FORCE_TOOLS[@]}" | grep -qxE 'keycloak|all'; then
-    if [[ -x "$ROOT/scripts/bootstrap-biocollect-owner.sh" ]]; then
+    if [[ -x "$ROOT/deploy/bootstrap-biocollect-owner.sh" ]]; then
       echo ">>> [install] Bootstrapping BioCollect owner in Keycloak..."
-      bash "$ROOT/scripts/bootstrap-biocollect-owner.sh" || echo ">>> [install] WARN: owner bootstrap failed (Keycloak may still be starting)"
+      bash "$ROOT/deploy/bootstrap-biocollect-owner.sh" || echo ">>> [install] WARN: owner bootstrap failed (Keycloak may still be starting)"
     fi
   fi
 fi

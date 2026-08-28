@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Idempotent: ensure BioCollect owner exists in Keycloak realm biocollect.
-# Run on Contabo after keycloak is healthy (existing realms are NOT updated by --import-realm).
+# Deployed under deploy/ — synced to Contabo via update-deploy.sh.
 set -euo pipefail
 
 ROOT="${OCI_ROOT:-/opt/optimizesolux/common-infra}"
+COMPOSE_PROJECT="optimizesolux-common"
+COMPOSE_FILE="$ROOT/docker-compose.yml"
+
 cd "$ROOT"
 
 if [[ ! -f .env ]]; then
@@ -21,8 +24,13 @@ OWNER_PASSWORD="${BIOCOLLECT_OWNER_PASSWORD:-BioCollect-Owner-ChangeMe!}"
 KC_ADMIN="${KEYCLOAK_ADMIN:-admin}"
 KC_ADMIN_PASSWORD="${KEYCLOAK_ADMIN_PASSWORD:?KEYCLOAK_ADMIN_PASSWORD required}"
 
+compose() {
+  docker compose -f "$COMPOSE_FILE" --project-name "$COMPOSE_PROJECT" --env-file "$ROOT/.env" \
+    --profile core --profile observability --profile mesh "$@"
+}
+
 kc() {
-  docker compose exec -T keycloak /opt/keycloak/bin/kcadm.sh "$@"
+  compose exec -T keycloak /opt/keycloak/bin/kcadm.sh "$@"
 }
 
 echo ">>> [keycloak] Bootstrap owner $OWNER_EMAIL in realm biocollect"
