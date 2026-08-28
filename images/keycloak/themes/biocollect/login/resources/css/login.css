@@ -1,23 +1,32 @@
-/* BioCollect — Keycloak v2 login (aligned with product landing) */
+/* BioCollect — Keycloak login (aligned with product landing) */
 :root {
   --biocollect-bg: #020617;
-  --biocollect-surface: rgba(15, 23, 42, 0.96);
-  --biocollect-border: rgba(148, 163, 184, 0.24);
+  --biocollect-surface: rgba(15, 23, 42, 0.82);
+  --biocollect-surface-strong: rgba(15, 23, 42, 0.94);
+  --biocollect-border: rgba(255, 255, 255, 0.1);
   --biocollect-text: #f8fafc;
   --biocollect-muted: #94a3b8;
   --biocollect-accent: #3b82f6;
   --biocollect-accent-hover: #60a5fa;
-  --keycloak-logo-url: url("../img/logo.svg");
-  --keycloak-logo-height: 3.25rem;
-  --keycloak-logo-width: 3.25rem;
+  --biocollect-emerald: #6ee7b7;
+  --keycloak-logo-url: none;
   --keycloak-bg-logo-url: none;
-  --keycloak-card-top-color: #3b82f6;
+  --keycloak-card-top-color: transparent;
   --pf-v5-global--primary-color--100: #3b82f6;
   --pf-v5-global--primary-color--200: #60a5fa;
-  --pf-v5-global--link--Color: #60a5fa;
-  --pf-v5-global--link--Color--hover: #93c5fd;
+  --pf-v5-global--link--Color: #93c5fd;
+  --pf-v5-global--link--Color--hover: #bfdbfe;
   --pf-v5-c-button--m-primary--BackgroundColor: #3b82f6;
   --pf-v5-c-button--m-primary--hover--BackgroundColor: #2563eb;
+}
+
+@keyframes biocollect-grid-drift {
+  0% {
+    background-position: 0 0, 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 0 0, 0 0, 42px 42px, 42px 42px;
+  }
 }
 
 html.login-pf {
@@ -37,76 +46,145 @@ html.login-pf body,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(37, 99, 235, 0.38), transparent 34%),
-    radial-gradient(circle at 88% 16%, rgba(16, 185, 129, 0.16), transparent 30%),
-    var(--biocollect-bg) !important;
+  background: var(--biocollect-bg) !important;
   background-image: none !important;
   color: var(--biocollect-text);
 }
 
+.biocollect-bg-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.38;
+  background-image:
+    radial-gradient(circle at 10% 12%, rgba(37, 99, 235, 0.55), transparent 28%),
+    radial-gradient(circle at 84% 20%, rgba(16, 185, 129, 0.28), transparent 24%),
+    linear-gradient(rgba(148, 163, 184, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.09) 1px, transparent 1px);
+  background-size: auto, auto, 42px 42px, 42px 42px;
+  animation: biocollect-grid-drift 24s linear infinite;
+}
+
 .pf-v5-c-login,
 .login-pf {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   background: transparent !important;
 }
 
 .pf-v5-c-login__container {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1.5rem;
-  grid-template-columns: min(100%, 28rem) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1rem !important;
+  width: min(100%, 26rem) !important;
+  max-width: 26rem !important;
+  margin: 0 auto !important;
+  padding: 1.5rem !important;
+  grid-template-columns: unset !important;
+  grid-template-areas: unset !important;
 }
 
-#kc-header {
-  width: min(100%, 28rem);
-  margin: 0 auto;
-  text-align: center;
-}
-
-#kc-header::before,
-#kc-header::after {
-  display: none !important;
-}
-
+#kc-header,
+.pf-v5-c-brand,
+.pf-v5-c-login__header,
 div.kc-logo-text {
-  margin: 0 auto 0.75rem;
-}
-
-#kc-header-wrapper {
-  color: var(--biocollect-text) !important;
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.02em !important;
-  line-height: 1.35 !important;
-  text-transform: none !important;
-  white-space: normal !important;
+  display: none !important;
 }
 
 .pf-v5-c-login__main,
 .card-pf,
 #kc-content-wrapper {
-  width: min(100%, 28rem) !important;
-  margin: 0 auto;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 1.5rem !important;
   background: var(--biocollect-surface) !important;
   border: 1px solid var(--biocollect-border) !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 24px 48px rgba(2, 6, 23, 0.42) !important;
+  border-radius: 1.25rem !important;
+  box-shadow:
+    0 24px 48px rgba(2, 6, 23, 0.45),
+    0 0 0 1px rgba(59, 130, 246, 0.08) inset !important;
   color: var(--biocollect-text) !important;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(18px);
 }
 
 .pf-v5-c-login__main-header {
-  border-top: 4px solid var(--biocollect-accent) !important;
+  border-top: none !important;
+  padding-top: 0 !important;
+}
+
+.pf-v5-c-login__main-header .pf-v5-c-title,
+#kc-page-title {
+  display: none !important;
+}
+
+.biocollect-hero {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+.biocollect-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.9rem;
+  background: #3b82f6;
+  box-shadow: 0 12px 28px rgba(59, 130, 246, 0.35);
+}
+
+.biocollect-mark img {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+
+.biocollect-slogan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.25);
+  background: rgba(59, 130, 246, 0.12);
+  color: #dbeafe;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.biocollect-slogan-pill::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--biocollect-emerald);
+  box-shadow: 0 0 10px rgba(110, 231, 183, 0.65);
+}
+
+.biocollect-hero-title {
+  margin: 0.85rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--biocollect-text);
+}
+
+.biocollect-hero-sub {
+  margin: 0.45rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--biocollect-muted);
 }
 
 .pf-v5-c-login__main-title,
 .pf-v5-c-title,
-#kc-page-title,
 h1 {
   color: var(--biocollect-text) !important;
   font-weight: 600 !important;
@@ -114,25 +192,28 @@ h1 {
 
 .pf-v5-c-form__label-text,
 label {
-  color: var(--biocollect-muted) !important;
+  color: #cbd5e1 !important;
   font-weight: 500 !important;
+  font-size: 0.875rem !important;
 }
 
 .pf-v5-c-form-control,
 input[type="text"],
 input[type="password"],
 input[type="email"] {
-  background: rgba(2, 6, 23, 0.72) !important;
-  border: 1px solid var(--biocollect-border) !important;
-  border-radius: 0.625rem !important;
+  background: rgba(2, 6, 23, 0.55) !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  border-radius: 0.75rem !important;
   color: var(--biocollect-text) !important;
-  min-height: 2.75rem;
+  min-height: 2.85rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .pf-v5-c-form-control:focus,
 input:focus {
-  border-color: var(--biocollect-accent) !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22) !important;
+  border-color: rgba(96, 165, 250, 0.85) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+  outline: none !important;
 }
 
 input:-webkit-autofill,
@@ -146,17 +227,20 @@ input:-webkit-autofill:focus {
 .pf-v5-c-button.pf-m-primary,
 #kc-login,
 input[type="submit"] {
-  background: var(--biocollect-accent) !important;
+  background: #3b82f6 !important;
   border: none !important;
-  border-radius: 0.625rem !important;
+  border-radius: 0.75rem !important;
   font-weight: 600 !important;
-  min-height: 2.75rem;
+  min-height: 2.85rem;
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.28) !important;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .pf-v5-c-button.pf-m-primary:hover,
 #kc-login:hover,
 input[type="submit"]:hover {
   background: #2563eb !important;
+  transform: translateY(-1px);
 }
 
 .pf-v5-c-button.pf-m-link,
@@ -165,7 +249,7 @@ a {
 }
 
 a:hover {
-  color: #93c5fd !important;
+  color: #bfdbfe !important;
 }
 
 .pf-v5-c-login__main-footer,
@@ -173,8 +257,14 @@ a:hover {
 .pf-v5-c-login__main-footer-helper-text,
 #kc-info,
 #kc-info-wrapper,
+#kc-registration,
 #social-providers h2 {
   color: var(--biocollect-muted) !important;
+  text-align: center;
+}
+
+#kc-registration-container {
+  margin-top: 0.75rem;
 }
 
 .pf-v5-c-login__main-footer-band {
@@ -182,20 +272,28 @@ a:hover {
 }
 
 .pf-v5-c-menu-toggle,
-#login-select-toggle {
-  border-radius: 0.5rem !important;
+#login-select-toggle,
+.pf-v5-c-form-control[aria-label*="locale"],
+select#login-select-toggle {
+  border-radius: 0.65rem !important;
   border-color: var(--biocollect-border) !important;
-  background: rgba(15, 23, 42, 0.85) !important;
+  background: var(--biocollect-surface-strong) !important;
   color: var(--biocollect-text) !important;
 }
 
+.pf-v5-c-login__main-header-utilities {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
 .pf-v5-c-alert {
-  border-radius: 0.625rem;
+  border-radius: 0.75rem;
 }
 
 .pf-v5-c-button.pf-m-secondary,
 .pf-v5-c-login__main-footer-links-item .pf-v5-c-button {
-  border-radius: 0.625rem !important;
+  border-radius: 0.75rem !important;
   border-color: var(--biocollect-border) !important;
   background: rgba(15, 23, 42, 0.65) !important;
   color: var(--biocollect-text) !important;
@@ -217,4 +315,26 @@ a:hover {
   flex-direction: column;
   gap: 0.75rem;
   align-items: center;
+}
+
+@media (max-width: 480px) {
+  .pf-v5-c-login__container {
+    padding: 1rem !important;
+  }
+
+  .pf-v5-c-login__main {
+    padding: 1.15rem !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .biocollect-bg-grid {
+    animation: none;
+  }
+
+  .pf-v5-c-button.pf-m-primary:hover,
+  #kc-login:hover,
+  input[type="submit"]:hover {
+    transform: none;
+  }
 }

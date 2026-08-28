@@ -61,5 +61,22 @@
       "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
       "optionalClientScopes": ["address", "phone", "offline_access"]
     }
+  ],
+  "users": [
+    {
+      "username": "francis.ahonsou@gmail.com",
+      "email": "francis.ahonsou@gmail.com",
+      "firstName": "Francis",
+      "lastName": "Ahonsou",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "BioCollect-Owner-ChangeMe!",
+          "temporary": true
+        }
+      ]
+    }
   ]
 }
