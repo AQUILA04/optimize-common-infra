@@ -4,6 +4,22 @@
   "displayName": "Notification Hub",
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "notification-sender",
+        "description": "Send notifications via the hub API",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "notification-admin",
+        "description": "Manage templates and admin endpoints",
+        "composite": false,
+        "clientRole": false
+      }
+    ]
+  },
   "clients": [
     {
       "clientId": "notification-hub-console",
@@ -25,6 +41,57 @@
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "secret": "CHANGE_ME_IN_VAULT"
+    },
+    {
+      "clientId": "biocollect-notification-sender",
+      "name": "BioCollect Notification Sender",
+      "description": "BioCollect API — Client Credentials to send notifications",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "secret": "CHANGE_ME_IN_VAULT",
+      "protocol": "openid-connect",
+      "defaultClientScopes": ["web-origins", "roles"],
+      "optionalClientScopes": [],
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.value": "biocollect",
+            "userinfo.token.claim": "false",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "audience-notification-hub-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "notification-hub-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-biocollect-notification-sender",
+      "enabled": true,
+      "serviceAccountClientId": "biocollect-notification-sender",
+      "clientRoles": {},
+      "realmRoles": ["notification-sender"]
     }
   ]
 }
