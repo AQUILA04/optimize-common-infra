@@ -228,6 +228,10 @@ if [[ ${#FORCE_SERVICES[@]} -gt 0 ]]; then
       echo ">>> [install] Bootstrapping BioCollect owner in Keycloak..."
       bash "$ROOT/deploy/bootstrap-biocollect-owner.sh" || echo ">>> [install] WARN: owner bootstrap failed (Keycloak may still be starting)"
     fi
+    if [[ -x "$ROOT/deploy/bootstrap-s2a-notification-client.sh" ]]; then
+      echo ">>> [install] Bootstrapping S2A notification-hub client in Keycloak..."
+      bash "$ROOT/deploy/bootstrap-s2a-notification-client.sh" || echo ">>> [install] WARN: S2A client bootstrap failed (Keycloak may still be starting)"
+    fi
   fi
 fi
 
