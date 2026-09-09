@@ -41,6 +41,13 @@ Do **not** embed Prometheus/Grafana/Loki in the product Contabo compose.
 
 Redis DB index / key prefix: see [NETWORKING.md](./NETWORKING.md).
 
+RestoOS convention:
+
+- public host `https://restoos.optimizesolux.com`
+- frontend + landing same-origin on `/`
+- API same-origin on `/api`
+- Redis DB `9`, prefix `restoos:`
+
 ## 3. Application database hostname
 
 Expose product Postgres on `optimizesolux-common` as `{slug}-db`:
