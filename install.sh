@@ -228,7 +228,10 @@ if [[ ${#FORCE_SERVICES[@]} -gt 0 ]]; then
       echo ">>> [install] Bootstrapping BioCollect owner in Keycloak..."
       bash "$ROOT/deploy/bootstrap-biocollect-owner.sh" || echo ">>> [install] WARN: owner bootstrap failed (Keycloak may still be starting)"
     fi
-    if [[ -x "$ROOT/deploy/bootstrap-s2a-notification-client.sh" ]]; then
+    if [[ -x "$ROOT/deploy/bootstrap-notification-hub-realm.sh" ]]; then
+      echo ">>> [install] Aligning notification-hub Keycloak realm (roles + clients)..."
+      bash "$ROOT/deploy/bootstrap-notification-hub-realm.sh" || echo ">>> [install] WARN: notification-hub realm bootstrap failed (Keycloak may still be starting)"
+    elif [[ -x "$ROOT/deploy/bootstrap-s2a-notification-client.sh" ]]; then
       echo ">>> [install] Bootstrapping S2A notification-hub client in Keycloak..."
       bash "$ROOT/deploy/bootstrap-s2a-notification-client.sh" || echo ">>> [install] WARN: S2A client bootstrap failed (Keycloak may still be starting)"
     fi
