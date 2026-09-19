@@ -191,6 +191,14 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@optimizesolux.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?PGADMIN_DEFAULT_PASSWORD required}
       PGADMIN_CONFIG_SERVER_MODE: "True"
+      # Cloudflare + Traefik: default ENHANCED_COOKIE_PROTECTION binds the session to
+      # the proxy hop IP, which rotates per request. CSS/JS then 302 to /login (HTML)
+      # and the browser reports MIME text/html. Values must be Python literals.
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+      PGADMIN_CONFIG_PROXY_X_FOR_COUNT: "2"
+      PGADMIN_CONFIG_PROXY_X_PROTO_COUNT: "2"
+      PGADMIN_CONFIG_PROXY_X_HOST_COUNT: "1"
+      PGADMIN_CONFIG_PROXY_X_PORT_COUNT: "1"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks: *common-networks
@@ -200,6 +208,8 @@ services:
       - "traefik.http.routers.oci-pgadmin.rule=Host(`${PGADMIN_HOSTNAME:-pgadmin.optimizesolux.com}`)"
       - "traefik.http.routers.oci-pgadmin.entrypoints=websecure"
       - "traefik.http.routers.oci-pgadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.oci-pgadmin.middlewares=oci-pgadmin-headers"
+      - "traefik.http.middlewares.oci-pgadmin-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.services.oci-pgadmin.loadbalancer.server.port=80"
 
   # ---------------------------------------------------------------------------

@@ -52,6 +52,8 @@ networks:
 | Jaeger | `jaeger` | UI `16686` | `jaeger.optimizesolux.com` |
 | Ollama | `ollama` | `11434` | — (profile `ai` only) |
 
+pgAdmin is published through **Cloudflare + Traefik**. Keep `PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=False` and `PROXY_X_*_COUNT` as in `docker-compose.yml`. Otherwise the session is bound to a rotating Cloudflare edge IP, static CSS/JS 302 to `/login`, and the browser reports MIME `text/html`.
+
 ## Product env examples
 
 ```bash
