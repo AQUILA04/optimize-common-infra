@@ -131,6 +131,9 @@ services:
       - "traefik.http.routers.oci-minio.rule=Host(`${MINIO_HOSTNAME:-s3.optimizesolux.com}`)"
       - "traefik.http.routers.oci-minio.entrypoints=websecure"
       - "traefik.http.routers.oci-minio.tls.certresolver=letsencrypt"
+      # Required: two Traefik services on this container (API 9000 + console 9001).
+      # Without an explicit router.service, Traefik drops oci-minio (404 on s3.optimizesolux.com).
+      - "traefik.http.routers.oci-minio.service=oci-minio"
       - "traefik.http.services.oci-minio.loadbalancer.server.port=9000"
       - "traefik.http.routers.oci-minio-console.rule=Host(`${MINIO_CONSOLE_HOSTNAME:-s3-console.optimizesolux.com}`)"
       - "traefik.http.routers.oci-minio-console.entrypoints=websecure"

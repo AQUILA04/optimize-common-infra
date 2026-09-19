@@ -54,6 +54,8 @@ networks:
 
 pgAdmin is published through **Cloudflare + Traefik**. Keep `PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=False` and `PROXY_X_*_COUNT` as in `docker-compose.yml`. Otherwise the session is bound to a rotating Cloudflare edge IP, static CSS/JS 302 to `/login`, and the browser reports MIME `text/html`.
 
+MinIO exposes **two** Traefik services on the same container (API `:9000` and console `:9001`). The API router **must** set `traefik.http.routers.oci-minio.service=oci-minio`. Without it Traefik logs `cannot be linked automatically with multiple Services` and `s3.optimizesolux.com` returns 404 (console still works). Do not drop this label on a common-infra redeploy.
+
 ## Product env examples
 
 ```bash
