@@ -1,0 +1,30 @@
+---
+description: Tout correctif Contabo doit d’abord être dans le repo Git, sinon le prochain CD l’écrase
+alwaysApply: true
+---
+
+# Contabo : patcher le repo avant (ou avec) le VPS
+
+Un changement appliqué **seulement** sur Contabo (`/opt/...`, `docker compose`, labels Traefik, `.env` hors secrets, `chown`, scripts) est **éphémère**. Le CD (`install.sh`, `update-deploy.sh`) resynchronise depuis GitHub et **écrase** le VPS.
+
+## Ordre obligatoire
+
+1. Modifier **ce dépôt** (`docker-compose.yml`, labels Traefik, `install.sh`, docs).
+2. **Commit + push** sur `main` (c’est la source de `install.sh`).
+3. **Ensuite** `install.sh --force-update <outil>` (recreate ciblé, pas un patch live orphelin).
+
+Hotfix VPS en urgence : même diff dans Git **dans la même tâche**. Ne jamais laisser `/opt/optimizesolux/common-infra` en avance sur GitHub.
+
+## Interdit
+
+- Corriger Traefik / MinIO / pgAdmin **uniquement** sur le conteneur live
+- Omettre `traefik.http.routers.*.service=` quand un service a **deux** services Traefik (API + console MinIO)
+- Clore un incident si le VPS est OK mais `main` n’a pas le correctif
+
+## Exemple
+
+```yaml
+# Obligatoire — sinon Traefik drop oci-minio (404 s3.optimizesolux.com)
+- "traefik.http.routers.oci-minio.service=oci-minio"
+- "traefik.http.routers.oci-minio-console.service=oci-minio-console"
+```
