@@ -281,9 +281,21 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD required}
       GF_SERVER_ROOT_URL: https://${GRAFANA_HOSTNAME:-grafana.optimizesolux.com}
       GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_UNIFIED_ALERTING_ENABLED: "true"
+      GF_ALERTING_ENABLED: "true"
+      # Used by provisioning/alerting/contactpoints.yml (${ALERT_EMAIL_TO})
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-contact@optimizesolux.com}
+      # Optional SMTP for email alerts (set in .env if notifications needed)
+      GF_SMTP_ENABLED: ${GF_SMTP_ENABLED:-false}
+      GF_SMTP_HOST: ${GF_SMTP_HOST:-}
+      GF_SMTP_USER: ${GF_SMTP_USER:-}
+      GF_SMTP_PASSWORD: ${GF_SMTP_PASSWORD:-}
+      GF_SMTP_FROM_ADDRESS: ${GF_SMTP_FROM_ADDRESS:-noreply@optimizesolux.com}
+      GF_SMTP_FROM_NAME: ${GF_SMTP_FROM_NAME:-OptimizeSolux Grafana}
     volumes:
       - ./deploy/observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
       - ./deploy/observability/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./deploy/observability/grafana/alerting:/etc/grafana/provisioning/alerting:ro
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus

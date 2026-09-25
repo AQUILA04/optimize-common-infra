@@ -51,13 +51,14 @@ sudo /opt/optimizesolux/common-infra/install.sh --force-update artemis
 
 ## Provisioned Grafana dashboards
 
-| UID | Title |
-|-----|--------|
-| `oci-targets` | Scrape targets UP/DOWN |
-| `oci-vps-host` | Contabo VPS host (node-exporter) |
-| `oci-docker-containers` | All containers (cAdvisor) |
-| `oci-common-overview` | Redis / MinIO / Keycloak / Artemis / OTel |
-| `oci-logs-containers` | Loki logs by compose project/service |
+| UID | Title | Folder |
+|-----|--------|--------|
+| `oci-targets` | Scrape targets UP/DOWN | OptimizeSolux |
+| `oci-vps-host` | Contabo VPS host (node-exporter) | OptimizeSolux |
+| `oci-docker-containers` | All containers (cAdvisor) | OptimizeSolux |
+| `oci-common-overview` | Redis / MinIO / Keycloak / Artemis / OTel | OptimizeSolux |
+| `oci-logs-containers` | Loki logs by compose project/service | OptimizeSolux |
+| `elykia-business-overview` | ELYKIA business Micrometer metrics | Elykia |
 
 ## Product contract (OTLP)
 
@@ -84,10 +85,30 @@ Prometheus scrapes `elykia-backend:8080/actuator/prometheus` on `optimizesolux-c
 (job `elykia-backend` in `deploy/observability/prometheus.yml`). The Contabo compose
 must publish the API container as hostname `elykia-backend`.
 
-Import product dashboards from the ELYKIA repo (`deploy/monitoring/grafana/dashboards/`)
-into Grafana folder **OptimizeSolux** / **Elykia** as needed.
+**Provisioned automatically** (no manual import):
 
-App-level metrics/traces require the SDK + env vars above.
+| Artefact | Path |
+|----------|------|
+| Dashboard **ELYKIA - Business Overview** | Grafana folder **Elykia** (`deploy/observability/grafana/dashboards/json/elykia/`) |
+| Alert rules (credit / stock / tontine / …) | `deploy/observability/grafana/alerting/alertrules.yml` |
+| Contact point email | `contactpoints.yml` → `${ALERT_EMAIL_TO}` (default `contact@optimizesolux.com`) |
+
+After syncing this repo on Contabo:
+
+```bash
+sudo /opt/optimizesolux/common-infra/install.sh --force-update prometheus
+sudo /opt/optimizesolux/common-infra/install.sh --force-update grafana
+# Target UP?
+docker exec optimizesolux-common-prometheus-1 wget -qO- 'http://localhost:9090/api/v1/targets' | grep -A2 elykia-backend
+```
+
+Optional email delivery: set in common-infra `.env`  
+`GF_SMTP_ENABLED=true`, `GF_SMTP_HOST`, `GF_SMTP_USER`, `GF_SMTP_PASSWORD`, `ALERT_EMAIL_TO=…`  
+then `--force-update grafana`.
+
+Do **not** run ELYKIA’s product `deploy/monitoring` stack on Contabo (legacy DigitalOcean only).
+
+App-level metrics/traces also use the SDK + OTEL env vars above.
 
 ## Artemis metrics
 

@@ -1,0 +1,875 @@
+apiVersion: 1
+
+groups:
+  # ========================================================================
+  # Groupe 1 : Alertes CRITIQUES - Crédits (P1)
+  # ========================================================================
+  - name: "CreditCritical"
+    folder: "ELYKIA"
+    interval: 30s
+    rules:
+      - uid: "credit_creation_failure_p1"
+        title: "Échec création de crédit"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_credit_creation_failed_total[5m])
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Échecs de création de crédit détectés"
+          description: "Le taux d'échec de création de crédit est > 0 sur les 5 dernières minutes. Raison: {{ $labels.reason }}"
+          runbook_url: "https://wiki.amenouveve-yaveh.com/runbooks/credit-failure"
+        labels:
+          severity: critical
+          team: support
+          domain: credit
+
+      - uid: "credit_stockout_p1"
+        title: "Stock insuffisant pour démarrer un crédit"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_credit_start_stockout_total[5m])
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Crédit bloqué par manque de stock"
+          description: "Un crédit n'a pas pu démarrer par manque de stock chez {{ $labels.collector }}"
+        labels:
+          severity: critical
+          team: support
+          domain: credit
+
+      - uid: "credit_distribution_stockout_p1"
+        title: "Distribution crédit bloquée - stock commercial insuffisant"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_credit_distribution_stockout_total[5m])
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Distribution crédit bloquée - stock commercial insuffisant"
+          description: "Un commercial {{ $labels.collector }} n'a pas assez de stock pour la distribution"
+        labels:
+          severity: critical
+          team: support
+          domain: credit
+
+  # ========================================================================
+  # Groupe 2 : Alertes CRITIQUES - Stock (P1)
+  # ========================================================================
+  - name: "StockCritical"
+    folder: "ELYKIA"
+    interval: 30s
+    rules:
+      - uid: "stock_delivery_failed_p1"
+        title: "Livraison de stock impossible"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_stockrequest_delivery_failed_total[5m])
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Livraison de demande de stock impossible"
+          description: "Aucun article disponible pour livrer la demande chez {{ $labels.collector }}"
+        labels:
+          severity: critical
+          team: support
+          domain: stock
+
+      - uid: "stock_price_conflict_p1"
+        title: "Conflit de prix stock - création demande bloquée"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_stockrequest_price_conflict_total[5m])
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Création de demande de stock bloquée par conflit de prix"
+          description: "Les prix des articles en stock ont changé, retour de stock nécessaire avant nouvelle demande"
+        labels:
+          severity: critical
+          team: support
+          domain: stock
+
+      - uid: "stock_return_exceeds_p1"
+        title: "Retour de stock excédentaire"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_stockreturn_exceeds_stock_total[5m])
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Quantité retournée supérieure au stock disponible"
+          description: "Tentative de retour avec quantité > stock restant chez {{ $labels.collector }}"
+        labels:
+          severity: critical
+          team: support
+          domain: stock
+
+  # ========================================================================
+  # Groupe 3 : Alertes WARNING - Stock (P2)
+  # ========================================================================
+  - name: "StockWarning"
+    folder: "ELYKIA"
+    interval: 1m
+    rules:
+      - uid: "stock_partial_delivery_p2"
+        title: "Livraison partielle de stock"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 1800
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_stockrequest_delivered_total{partial="true"}[15m])
+              refId: A
+              intervalMs: 60000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: mean
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [2]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: "Livraisons partielles fréquentes"
+          description: "Des livraisons partielles de stock sont détectées - stock magasin possiblement insuffisant"
+        labels:
+          severity: warning
+          team: support
+          domain: stock
+
+      - uid: "stock_auto_cancel_p2"
+        title: "Demandes de stock auto-annulées"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_stockrequest_auto_cancelled_total[1h])
+              refId: A
+              intervalMs: 60000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: "Demandes de stock auto-annulées (30 jours sans validation)"
+          description: "Le scheduler a auto-annulé des demandes de stock non traitées depuis 30 jours"
+        labels:
+          severity: warning
+          team: support
+          domain: stock
+
+  # ========================================================================
+  # Groupe 4 : Alertes WARNING - Crédits (P2)
+  # ========================================================================
+  - name: "CreditWarning"
+    folder: "ELYKIA"
+    interval: 1m
+    rules:
+      - uid: "credit_collector_changed_p2"
+        title: "Changement de commercial fréquent"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_credit_collector_changed_total[1h])
+              refId: A
+              intervalMs: 60000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: mean
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: "Changements de commercial anormalement élevés"
+          description: "Plus de 5 changements de commercial par heure détectés"
+        labels:
+          severity: warning
+          team: support
+          domain: credit
+
+      - uid: "credit_aggregation_error_p2"
+        title: "Erreurs d'agrégation BI"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 1800
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_credit_aggregation_error_total[15m])
+              refId: A
+              intervalMs: 60000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: "Erreurs d'agrégation BI sur les ventes"
+          description: "L'agrégation BI des ventes rencontre des erreurs (crédit ref {{ $labels.creditRef }})"
+        labels:
+          severity: warning
+          team: tech
+          domain: bi
+
+  # ========================================================================
+  # Groupe 5 : Alertes WARNING - Tontine (P2)
+  # ========================================================================
+  - name: "TontineWarning"
+    folder: "ELYKIA"
+    interval: 1m
+    rules:
+      - uid: "tontine_delivery_exceeded_p2"
+        title: "Livraison tontine > contribution disponible"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_tontine_delivery_amount_exceeded_total[10m])
+              refId: A
+              intervalMs: 60000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: "Livraison tontine annulée - montant insuffisant"
+          description: "Un membre tontine n'a pas assez de contribution disponible pour sa livraison"
+        labels:
+          severity: warning
+          team: support
+          domain: tontine
+
+  # ========================================================================
+  # Groupe 6 : Alertes WARNING - Rattrapage (P2)
+  # ========================================================================
+  - name: "RattrapageWarning"
+    folder: "ELYKIA"
+    interval: 1m
+    rules:
+      - uid: "rattrapage_insufficient_p2"
+        title: "Stock insuffisant pour rattrapage"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_rattrapage_stock_insufficient_total[10m])
+              refId: A
+              intervalMs: 60000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: "Rattrapage crédit - stock insuffisant"
+          description: "Stock résiduel insuffisant pour opération de rattrapage chez {{ $labels.collector }}"
+        labels:
+          severity: warning
+          team: support
+          domain: rattrapage
+
+  # ========================================================================
+  # Groupe 7 : Alertes INFO - Opérations (P3)
+  # ========================================================================
+  - name: "OperationalInfo"
+    folder: "ELYKIA"
+    interval: 5m
+    rules:
+      - uid: "articles_out_of_stock_p3"
+        title: "Articles en rupture de stock"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: elykia_articles_outofstock
+              refId: A
+              intervalMs: 300000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 30m
+        annotations:
+          summary: "Articles en rupture de stock"
+          description: "{{ $value }} article(s) sont en rupture de stock (quantité = 0)"
+        labels:
+          severity: info
+          team: support
+          domain: stock
+
+      - uid: "articles_low_stock_p3"
+        title: "Articles en stock faible"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: elykia_articles_lowstock
+              refId: A
+              intervalMs: 300000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1h
+        annotations:
+          summary: "Plus de 5 articles en stock faible"
+          description: "{{ $value }} articles ont un stock <= 6 unités"
+        labels:
+          severity: info
+          team: support
+          domain: stock
+
+      - uid: "inventory_blocked_p3"
+        title: "Inventaire bloqué (écarts non réconciliés)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(elykia_inventory_finalization_blocked_total[1h])
+              refId: A
+              intervalMs: 300000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 30m
+        annotations:
+          summary: "Finalisation d'inventaire bloquée"
+          description: "Un inventaire ne peut pas être finalisé à cause d'écarts non réconciliés"
+        labels:
+          severity: info
+          team: support
+          domain: inventory
+
+  # ========================================================================
+  # Groupe 8 : Alertes INFRASTRUCTURE (P1)
+  # ========================================================================
+  - name: "Infrastructure"
+    folder: "ELYKIA"
+    interval: 30s
+    rules:
+      - uid: "backend_down_p1"
+        title: "Backend injoignable"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: up{job="backend-prod"}
+              refId: A
+              intervalMs: 30000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+              refId: C
+        noDataState: Alerting
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: "Le backend ELYKIA (prod) est injoignable"
+          description: "Le target Prometheus backend-prod ne répond plus depuis 2 minutes"
+        labels:
+          severity: critical
+          team: tech
+          domain: infra
+
+      - uid: "high_disk_usage_p1"
+        title: "Espace disque critique"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: 100 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100)
+              refId: A
+              intervalMs: 60000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: mean
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [90]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: "Espace disque > 90% sur le serveur"
+          description: "L'espace disque est à {{ $value }}% sur la partition racine"
+        labels:
+          severity: critical
+          team: tech
+          domain: infra

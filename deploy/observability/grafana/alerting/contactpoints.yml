@@ -1,0 +1,10 @@
+apiVersion: 1
+
+contactPoints:
+  - name: "Email Admins"
+    receivers:
+      - uid: "email-admins"
+        type: email
+        settings:
+          addresses: "${ALERT_EMAIL_TO}"
+        disableResolveMessage: false

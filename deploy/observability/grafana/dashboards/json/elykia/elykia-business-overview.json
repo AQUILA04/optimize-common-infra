@@ -1,0 +1,380 @@
+{
+  "title": "ELYKIA - Business Overview",
+  "uid": "elykia-business-overview",
+  "version": 1,
+  "tags": ["elykia", "business"],
+  "schemaVersion": 39,
+  "timezone": "browser",
+  "editable": true,
+  "refresh": "30s",
+  "panels": [
+    {
+      "title": "Crédits - Créations (5min)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 0, "y": 0},
+      "targets": [{
+        "expr": "sum(rate(elykia_credit_created_total[5m]))",
+        "legendFormat": "Créations"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 10, "color": "orange"}]}
+        }
+      }
+    },
+    {
+      "title": "Crédits - Échecs création (5min)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 4, "y": 0},
+      "targets": [{
+        "expr": "sum(rate(elykia_credit_creation_failed_total[5m]))",
+        "legendFormat": "Échecs"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Crédits - Stockout démarrage",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 8, "y": 0},
+      "targets": [{
+        "expr": "sum(rate(elykia_credit_start_stockout_total[5m]))",
+        "legendFormat": "Stockouts"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Crédits - Changements commercial (1h)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 12, "y": 0},
+      "targets": [{
+        "expr": "sum(rate(elykia_credit_collector_changed_total[1h]))",
+        "legendFormat": "Changements/h"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 5, "color": "orange"}, {"value": 10, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Collections - Montant journalier",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+      "targets": [{
+        "expr": "sum(rate(elykia_collection_recorded_total[1m]))",
+        "legendFormat": "Collections"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {"drawStyle": "bars", "fillOpacity": 50, "lineWidth": 1}
+        }
+      }
+    },
+    {
+      "title": "Collections - Échecs (10min)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 16, "y": 0},
+      "targets": [{
+        "expr": "sum(rate(elykia_collection_failed_total[10m]))",
+        "legendFormat": "Échecs"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Crédits - Agrégation BI erreurs",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 20, "y": 0},
+      "targets": [{
+        "expr": "sum(rate(elykia_credit_aggregation_error_total[15m]))",
+        "legendFormat": "Erreurs"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "orange"}]}
+        }
+      }
+    },
+    {
+      "title": "Stock - Demandes créées (1h)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 14},
+      "targets": [{
+        "expr": "sum(rate(elykia_stockrequest_created_total[1h]))",
+        "legendFormat": "Créées"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {"drawStyle": "lines", "fillOpacity": 20, "lineWidth": 2}
+        }
+      }
+    },
+    {
+      "title": "Stock - Livraisons (partielles)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 8, "y": 14},
+      "targets": [{
+        "expr": "sum(rate(elykia_stockrequest_delivered_total{partial=\"true\"}[1h]))",
+        "legendFormat": "Partielles"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 2, "color": "orange"}, {"value": 5, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Stock - Conflits prix bloquants",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 12, "y": 14},
+      "targets": [{
+        "expr": "sum(rate(elykia_stockrequest_price_conflict_total[1h]))",
+        "legendFormat": "Conflits"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Stock - Retours créés (1h)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 16, "y": 14},
+      "targets": [{
+        "expr": "sum(rate(elykia_stockreturn_created_total[1h]))",
+        "legendFormat": "Retours"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}
+        }
+      }
+    },
+    {
+      "title": "Stock - Retours excédentaires",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 20, "y": 14},
+      "targets": [{
+        "expr": "sum(rate(elykia_stockreturn_exceeds_stock_total[1h]))",
+        "legendFormat": "Excès"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Rattrapage - Créations (1h)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 0, "y": 22},
+      "targets": [{
+        "expr": "sum(rate(elykia_rattrapage_created_total[1h]))",
+        "legendFormat": "Rattrapages"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}
+        }
+      }
+    },
+    {
+      "title": "Rattrapage - Stock insuffisant",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 4, "y": 22},
+      "targets": [{
+        "expr": "sum(rate(elykia_rattrapage_stock_insufficient_total[1h]))",
+        "legendFormat": "Insuffisants"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Tontine - Adhésions (24h)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 8, "y": 22},
+      "targets": [{
+        "expr": "sum(rate(elykia_tontine_member_registered_total[24h]))",
+        "legendFormat": "Adhésions"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}
+        }
+      }
+    },
+    {
+      "title": "Tontine - Collectes (montant)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 28},
+      "targets": [{
+        "expr": "sum(rate(elykia_tontine_collection_recorded_total[1m]))",
+        "legendFormat": "Collectes"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {"drawStyle": "bars", "fillOpacity": 50, "lineWidth": 1}
+        }
+      }
+    },
+    {
+      "title": "Tontine - Livraison montant dépassé",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 12, "y": 22},
+      "targets": [{
+        "expr": "sum(rate(elykia_tontine_delivery_amount_exceeded_total[1h]))",
+        "legendFormat": "Dépassements"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Articles - Rupture de stock",
+      "type": "gauge",
+      "gridPos": {"h": 6, "w": 4, "x": 16, "y": 22},
+      "targets": [{
+        "expr": "elykia_articles_outofstock",
+        "legendFormat": "Ruptures"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "orange"}, {"value": 5, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Articles - Stock faible (<=6)",
+      "type": "gauge",
+      "gridPos": {"h": 6, "w": 4, "x": 20, "y": 22},
+      "targets": [{
+        "expr": "elykia_articles_lowstock",
+        "legendFormat": "Stock faible"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 5, "color": "orange"}, {"value": 15, "color": "red"}]}
+        }
+      }
+    },
+    {
+      "title": "Stock - Demandes auto-annulées (scheduler)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 8, "y": 28},
+      "targets": [{
+        "expr": "sum(rate(elykia_stockrequest_auto_cancelled_total[24h]))",
+        "legendFormat": "Auto-annulées"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 1, "color": "orange"}]}
+        }
+      }
+    },
+    {
+      "title": "Tontine - Livraisons créées (24h)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 12, "y": 28},
+      "targets": [{
+        "expr": "sum(rate(elykia_tontine_delivery_created_total[24h]))",
+        "legendFormat": "Livraisons"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}
+        }
+      }
+    },
+    {
+      "title": "Crédit - Mise journalière modifiée (24h)",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 16, "y": 28},
+      "targets": [{
+        "expr": "sum(rate(elykia_credit_dailystake_changed_total[24h]))",
+        "legendFormat": "Modifications"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"value": 10, "color": "orange"}]}
+        }
+      }
+    },
+    {
+      "title": "Inventaire - État",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 4, "x": 20, "y": 28},
+      "targets": [
+        {"expr": "rate(elykia_inventory_created_total[24h])", "legendFormat": "Créés"},
+        {"expr": "rate(elykia_inventory_finalized_total[24h])", "legendFormat": "Finalisés"},
+        {"expr": "rate(elykia_inventory_finalization_blocked_total[24h])", "legendFormat": "Bloqués"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]}
+        }
+      }
+    }
+  ]
+}

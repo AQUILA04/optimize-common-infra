@@ -9,3 +9,15 @@ providers:
     updateIntervalSeconds: 30
     options:
       path: /etc/grafana/provisioning/dashboards/json
+      # Infra dashboards only (exclude product JSON in subfolders)
+      foldersFromFilesStructure: false
+
+  - name: elykia
+    orgId: 1
+    folder: Elykia
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json/elykia
