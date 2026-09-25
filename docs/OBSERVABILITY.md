@@ -89,7 +89,7 @@ must publish the API container as hostname `elykia-backend`.
 
 | Artefact | Path |
 |----------|------|
-| Dashboard **ELYKIA - Business Overview** | Grafana folder **Elykia** (`deploy/observability/grafana/dashboards/json/elykia/`) |
+| Dashboard **ELYKIA - Business Overview** | Grafana folder **Elykia** (`deploy/observability/grafana/dashboards/elykia/`) |
 | Alert rules (credit / stock / tontine / …) | `deploy/observability/grafana/alerting/alertrules.yml` |
 | Contact point email | `contactpoints.yml` → `${ALERT_EMAIL_TO}` (default `contact@optimizesolux.com`) |
 
