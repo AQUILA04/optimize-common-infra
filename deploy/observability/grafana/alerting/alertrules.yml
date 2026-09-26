@@ -788,7 +788,7 @@ groups:
               to: 0
             datasourceUid: prometheus
             model:
-              expr: up{job="backend-prod"}
+              expr: up{job="elykia-backend"}
               refId: A
               intervalMs: 30000
               maxDataPoints: 100
@@ -820,7 +820,7 @@ groups:
         for: 2m
         annotations:
           summary: "Le backend ELYKIA (prod) est injoignable"
-          description: "Le target Prometheus backend-prod ne répond plus depuis 2 minutes"
+          description: "Le target Prometheus elykia-backend ne répond plus depuis 2 minutes (up < 1)"
         labels:
           severity: critical
           team: tech

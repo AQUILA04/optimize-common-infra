@@ -6,5 +6,5 @@ contactPoints:
       - uid: "email-admins"
         type: email
         settings:
-          addresses: "${ALERT_EMAIL_TO}"
+          addresses: "alert@optimizesolux.com"
         disableResolveMessage: false
