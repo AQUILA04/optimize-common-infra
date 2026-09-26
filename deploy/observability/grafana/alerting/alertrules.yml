@@ -637,7 +637,7 @@ groups:
               to: 0
             datasourceUid: prometheus
             model:
-              expr: elykia_articles_outofstock
+              expr: elykia_article_outofstock
               refId: A
               intervalMs: 300000
               maxDataPoints: 100
@@ -668,8 +668,8 @@ groups:
         execErrState: Error
         for: 30m
         annotations:
-          summary: "Articles en rupture de stock"
-          description: "{{ $value }} article(s) sont en rupture de stock (quantité = 0)"
+          summary: "Rupture — {{ $labels.article_name }}"
+          description: "Article {{ $labels.article_name }} (id {{ $labels.article_id }}) est en rupture de stock (quantité = 0). Liste complète : https://elykia.amenouveve-yaveh.com/bi/stock"
         labels:
           severity: info
           team: support
@@ -685,7 +685,7 @@ groups:
               to: 0
             datasourceUid: prometheus
             model:
-              expr: elykia_articles_lowstock
+              expr: elykia_article_lowstock
               refId: A
               intervalMs: 300000
               maxDataPoints: 100
@@ -710,14 +710,14 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [5]
+                    params: [0]
               refId: C
         noDataState: OK
         execErrState: Error
         for: 1h
         annotations:
-          summary: "Plus de 5 articles en stock faible"
-          description: "{{ $value }} articles ont un stock <= 6 unités"
+          summary: "Stock faible — {{ $labels.article_name }}"
+          description: "Article {{ $labels.article_name }} (id {{ $labels.article_id }}) : {{ $values.B.Value }} unité(s) restantes (seuil réappro {{ $labels.reorder_point }}). Liste complète : https://elykia.amenouveve-yaveh.com/bi/stock"
         labels:
           severity: info
           team: support
