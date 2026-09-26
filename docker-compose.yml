@@ -284,14 +284,17 @@ services:
       GF_UNIFIED_ALERTING_ENABLED: "true"
       GF_ALERTING_ENABLED: "true"
       # Used by provisioning/alerting/contactpoints.yml (${ALERT_EMAIL_TO})
-      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-contact@optimizesolux.com}
-      # Optional SMTP for email alerts (set in .env if notifications needed)
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-alert@optimizesolux.com}
+      # SMTP: reuse notification-hub Resend (MAIL_* in /opt/notification-hub/prod/.env)
       GF_SMTP_ENABLED: ${GF_SMTP_ENABLED:-false}
       GF_SMTP_HOST: ${GF_SMTP_HOST:-}
       GF_SMTP_USER: ${GF_SMTP_USER:-}
       GF_SMTP_PASSWORD: ${GF_SMTP_PASSWORD:-}
       GF_SMTP_FROM_ADDRESS: ${GF_SMTP_FROM_ADDRESS:-noreply@optimizesolux.com}
       GF_SMTP_FROM_NAME: ${GF_SMTP_FROM_NAME:-OptimizeSolux Grafana}
+      # Resend uses implicit TLS on 465 — do not negotiate STARTTLS
+      GF_SMTP_STARTTLS_POLICY: ${GF_SMTP_STARTTLS_POLICY:-NoStartTLS}
+      GF_SMTP_SKIP_VERIFY: ${GF_SMTP_SKIP_VERIFY:-false}
     volumes:
       - ./deploy/observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
       - ./deploy/observability/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
