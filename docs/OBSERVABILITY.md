@@ -91,7 +91,7 @@ must publish the API container as hostname `elykia-backend`.
 |----------|------|
 | Dashboard **ELYKIA - Business Overview** | Grafana folder **Elykia** (`deploy/observability/grafana/dashboards/elykia/`) |
 | Alert rules (credit / stock / tontine / …) | `deploy/observability/grafana/alerting/alertrules.yml` |
-| Contact point email | `contactpoints.yml` → `${ALERT_EMAIL_TO}` (default `contact@optimizesolux.com`) |
+| Contact point email | `contactpoints.yml` → `${ALERT_EMAIL_TO}` (default `alert@optimizesolux.com`) |
 
 After syncing this repo on Contabo:
 
@@ -102,9 +102,20 @@ sudo /opt/optimizesolux/common-infra/install.sh --force-update grafana
 docker exec optimizesolux-common-prometheus-1 wget -qO- 'http://localhost:9090/api/v1/targets' | grep -A2 elykia-backend
 ```
 
-Optional email delivery: set in common-infra `.env`  
-`GF_SMTP_ENABLED=true`, `GF_SMTP_HOST`, `GF_SMTP_USER`, `GF_SMTP_PASSWORD`, `ALERT_EMAIL_TO=…`  
-then `--force-update grafana`.
+**Email alerts (Resend = same SMTP as notification-hub)** — in `/opt/optimizesolux/common-infra/.env`:
+
+```bash
+ALERT_EMAIL_TO=alert@optimizesolux.com
+GF_SMTP_ENABLED=true
+GF_SMTP_HOST=smtp.resend.com:465
+GF_SMTP_USER=resend
+GF_SMTP_PASSWORD=<MAIL_PASS from /opt/notification-hub/prod/.env>
+GF_SMTP_FROM_ADDRESS=noreply@optimizesolux.com
+GF_SMTP_FROM_NAME=OptimizeSolux Grafana
+GF_SMTP_STARTTLS_POLICY=NoStartTLS
+```
+
+Then `install.sh --force-update grafana`. Do not commit secrets; copy `MAIL_PASS` from notification-hub only on the VPS.
 
 Do **not** run ELYKIA’s product `deploy/monitoring` stack on Contabo (legacy DigitalOcean only).
 
