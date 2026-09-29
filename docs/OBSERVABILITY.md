@@ -111,11 +111,11 @@ GF_SMTP_HOST=smtp.resend.com:465
 GF_SMTP_USER=resend
 GF_SMTP_PASSWORD=<MAIL_PASS from /opt/notification-hub/prod/.env>
 GF_SMTP_FROM_ADDRESS=noreply@optimizesolux.com
-GF_SMTP_FROM_NAME=OptimizeSolux Grafana
+GF_SMTP_FROM_NAME="OptimizeSolux Grafana"
 GF_SMTP_STARTTLS_POLICY=NoStartTLS
 ```
 
-Then `install.sh --force-update grafana`. Do not commit secrets; copy `MAIL_PASS` from notification-hub only on the VPS.
+Quote values containing spaces: deploy scripts (`bootstrap-*-realm.sh`) `source .env`. Then `install.sh --force-update grafana`. Do not commit secrets; copy `MAIL_PASS` from notification-hub only on the VPS.
 
 Do **not** run ELYKIA’s product `deploy/monitoring` stack on Contabo (legacy DigitalOcean only).
 
