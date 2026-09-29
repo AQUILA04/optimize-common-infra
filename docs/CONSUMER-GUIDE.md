@@ -75,7 +75,7 @@ Register that host in pgAdmin (`https://pgadmin.optimizesolux.com`).
 - Realm JSON: `images/keycloak/realms/{slug}-realm.json` — **seed only** (`--import-realm` creates a realm if missing; it does **not** re-apply JSON deltas on an existing realm).
 - Login themes: `images/keycloak/themes/` — **mounted at runtime** on Contabo (git sync + force-update is enough; no image rebuild for theme/CSS changes).
 - Custom image (`KEYCLOAK_IMAGE`) still used for base Keycloak version; realm import + themes come from synced files.
-- **notification-hub** live alignment: `deploy/bootstrap-notification-hub-realm.sh` (idempotent `kcadm`) ensures roles (`notification-sender`, `notification-admin`) and clients (`notification-hub-console`, `notification-hub-api`, `biocollect-notification-sender`, `s2a`, `restoos`) match the JSON. Runs automatically after `install.sh --force-update keycloak`. Secrets are never rotated if already set.
+- **notification-hub** live alignment: `deploy/bootstrap-notification-hub-realm.sh` (idempotent `kcadm`) ensures roles (`notification-sender`, `notification-admin`) and clients (`notification-hub-console`, `notification-hub-api`, `biocollect-notification-sender`, `s2a`, `restoos`, `elykia`) match the JSON. Runs automatically after `install.sh --force-update keycloak`. Secrets are never rotated if already set.
 
 ### GitHub Actions CD (`workflow_dispatch`, force-update = `keycloak`)
 

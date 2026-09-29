@@ -243,6 +243,12 @@ ensure_sender_client \
   "RestoOS API — Client Credentials to send invitations via Notification Hub" \
   "restoos"
 
+ensure_sender_client \
+  "elykia" \
+  "Elykia Notification Sender" \
+  "Elykia API — Client Credentials for customer-space OTP via Notification Hub" \
+  "elykia"
+
 echo ""
 echo "================================================================"
 echo " notification-hub realm aligned (roles + clients from realm JSON)"
@@ -250,7 +256,7 @@ echo "================================================================"
 echo ">>> [keycloak] Roles:"
 kc get roles -r "$REALM" --fields name --format csv --noquotes 2>/dev/null | sort -u || true
 echo ">>> [keycloak] Clients:"
-for c in notification-hub-console notification-hub-api biocollect-notification-sender s2a restoos; do
+for c in notification-hub-console notification-hub-api biocollect-notification-sender s2a restoos elykia; do
   id="$(client_internal_id "$c")"
   if [[ -n "$id" ]]; then
     echo "  OK  ${c} (${id})"
