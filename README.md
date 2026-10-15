@@ -34,6 +34,7 @@ sudo /opt/optimizesolux/common-infra/install.sh --enable ai --force-update ollam
 | Doc | Contenu |
 |-----|---------|
 | [docs/SPEC.md](docs/SPEC.md) | Spec fonctionnelle |
+| [docs/CONTABO-ARCHITECTURE.md](docs/CONTABO-ARCHITECTURE.md) | Inventaire live du VPS, OCI au centre |
 | [docs/NETWORKING.md](docs/NETWORKING.md) | Réseaux, hostnames, ports |
 | [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md) | Grafana / Prometheus / OTel / Loki (IaC) |
 | [docs/CONSUMER-GUIDE.md](docs/CONSUMER-GUIDE.md) | Brancher un produit |
