@@ -160,6 +160,7 @@ tool_services() {
     minio) echo minio ;;
     mailpit) echo mailpit ;;
     pgadmin) echo pgadmin ;;
+    clamav) echo clamav ;;
     gateway) echo gateway ;;
     eureka) echo eureka ;;
     otel|otel-collector) echo otel-collector ;;
@@ -185,7 +186,7 @@ FORCE_SERVICES=()
 for tool in "${FORCE_TOOLS[@]}"; do
   if [[ "$tool" == "all" ]]; then
     # all excludes ollama; opt-in profiles only if enabled
-    for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter; do
+    for t in vault keycloak redis artemis minio mailpit pgadmin clamav gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter; do
       # shellcheck disable=SC2207
       FORCE_SERVICES+=($(tool_services "$t"))
     done

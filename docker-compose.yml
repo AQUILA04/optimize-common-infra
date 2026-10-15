@@ -215,6 +215,28 @@ services:
       - "traefik.http.middlewares.oci-pgadmin-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.services.oci-pgadmin.loadbalancer.server.port=80"
 
+  # Antivirus for product uploads: clamd INSTREAM on clamav:3310, scan before writing to MinIO.
+  # No Traefik route, no host port — clamd TCP has no authentication.
+  clamav:
+    profiles: ["core"]
+    image: clamav/clamav:1.4_base
+    restart: unless-stopped
+    environment:
+      CLAMD_CONF_StreamMaxLength: ${CLAMAV_MAX_SIZE:-100M}
+      CLAMD_CONF_MaxScanSize: ${CLAMAV_MAX_SIZE:-100M}
+      CLAMD_CONF_MaxFileSize: ${CLAMAV_MAX_SIZE:-100M}
+    volumes:
+      - clamav_data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      # First start downloads the full signature set before clamd listens.
+      start_period: 10m
+    networks:
+      - optimizesolux-common
+
   # ---------------------------------------------------------------------------
   # OBSERVABILITY
   # ---------------------------------------------------------------------------
@@ -496,6 +518,7 @@ volumes:
   artemis_data:
   minio_data:
   pgadmin_data:
+  clamav_data:
   prometheus_data:
   grafana_data:
   loki_data:

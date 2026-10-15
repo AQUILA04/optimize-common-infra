@@ -24,6 +24,7 @@ Attach FE / API (public) to `traefik-public` for Traefik labels.
 | Vault | `VAULT_ADDR=http://vault:8200` or `https://vault.optimizesolux.com` |
 | OTel | See [OBSERVABILITY.md](./OBSERVABILITY.md) — `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` |
 | MinIO | `MINIO_ENDPOINT=http://minio:9000` |
+| ClamAV | `CLAMAV_HOST=clamav` `CLAMAV_PORT=3310` — see [Antivirus on uploads](#antivirus-on-uploads) |
 | Eureka | `EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/` |
 
 ### OTel (required for app metrics / traces)
@@ -40,6 +41,18 @@ Container CPU/RAM and logs for product compose projects appear in Grafana automa
 Do **not** embed Prometheus/Grafana/Loki in the product Contabo compose.
 
 Redis DB index / key prefix: see [NETWORKING.md](./NETWORKING.md).
+
+### Antivirus on uploads
+
+Every user-uploaded document goes through the shared `clamd` **before** it is written to MinIO or the product DB. MinIO has no antivirus hook: an object already in a bucket was never scanned.
+
+1. Stream the bytes to `clamav:3310` with the clamd `INSTREAM` command (Java: a clamd client over TCP; Node: `clamscan` / `clamdjs` in daemon mode).
+2. `stream: OK` → store the file.
+3. `... FOUND` → reject the upload (HTTP 422) and store nothing.
+4. Connection error, timeout, or `INSTREAM size limit exceeded` → reject the upload. Never store on scan failure.
+
+The limit per file is `CLAMAV_MAX_SIZE` in the common-infra `.env` (default `100M`). Keep the product upload limit at or below it.
+`clamd` speaks plain TCP with no authentication: call it only on `optimizesolux-common`, never through Traefik.
 
 RestoOS convention:
 
@@ -65,7 +78,7 @@ Register that host in pgAdmin (`https://pgadmin.optimizesolux.com`).
 
 ## 4. What to remove from product Contabo compose
 
-- Redis, Keycloak, Artemis/Kafka, MinIO, Maildev/Mailpit
+- Redis, Keycloak, Artemis/Kafka, MinIO, Maildev/Mailpit, ClamAV
 - Local Prometheus/Grafana/Loki/pgAdmin stacks
 
 **Keep:** API, frontend, **métier DB**.

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clamav
+  namespace: optimizesolux-common
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clamav
+  template:
+    metadata:
+      labels:
+        app: clamav
+    spec:
+      containers:
+        - name: clamav
+          image: clamav/clamav:1.4_base
+          env:
+            - name: CLAMD_CONF_StreamMaxLength
+              value: 100M
+            - name: CLAMD_CONF_MaxScanSize
+              value: 100M
+            - name: CLAMD_CONF_MaxFileSize
+              value: 100M
+          ports:
+            - containerPort: 3310
+              name: clamd
+          # First start downloads the full signature set before clamd listens.
+          startupProbe:
+            tcpSocket:
+              port: clamd
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command: ["clamdcheck.sh"]
+            periodSeconds: 60
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 2Gi
+            limits:
+              memory: 4Gi
+          volumeMounts:
+            - name: signatures
+              mountPath: /var/lib/clamav
+      volumes:
+        - name: signatures
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clamav
+  namespace: optimizesolux-common
+spec:
+  selector:
+    app: clamav
+  ports:
+    - port: 3310
+      targetPort: clamd

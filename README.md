@@ -48,7 +48,7 @@ sudo /opt/optimizesolux/common-infra/install.sh --enable ai --force-update ollam
 
 | Profile | Défaut Contabo | Services |
 |---------|----------------|----------|
-| `core` | oui | redis, artemis, keycloak-db, keycloak, minio, mailpit, vault, pgadmin |
+| `core` | oui | redis, artemis, keycloak-db, keycloak, minio, mailpit, vault, pgadmin, clamav |
 | `observability` | oui | otel, prometheus, grafana, loki, promtail, node-exporter, cadvisor, redis-exporter |
 | `mesh` | oui | eureka, gateway |
 | `kafka` | non | zookeeper, kafka |

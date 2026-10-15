@@ -39,6 +39,7 @@ networks:
 | MinIO | `minio` | API `9000`, console `9001` | `s3` / `s3-console.optimizesolux.com` |
 | Mailpit | `mailpit` | SMTP `1025`, UI `8025` | `mail.optimizesolux.com` |
 | pgAdmin4 | `pgadmin` | `80` | `pgadmin.optimizesolux.com` |
+| ClamAV (clamd) | `clamav` | `3310` | — (internal only, no auth on TCP) |
 | Eureka | `eureka` | `8761` | `eureka.optimizesolux.com` |
 | Gateway | `gateway` | `8080` | `gateway.optimizesolux.com` |
 | OTel Collector | `otel-collector` | `4317` gRPC, `4318` HTTP | — |
@@ -72,6 +73,8 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
 OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 OTEL_RESOURCE_ATTRIBUTES=service.namespace=optimizesolux,deployment.environment=prod
 MINIO_ENDPOINT=http://minio:9000
+CLAMAV_HOST=clamav
+CLAMAV_PORT=3310
 ```
 
 Observability details: [OBSERVABILITY.md](./OBSERVABILITY.md).
@@ -108,6 +111,7 @@ Product API ──optimizesolux-common──► redis:6379
                                     ► mailpit:1025
                                     ► vault:8200
                                     ► otel-collector:4318
+                                    ► clamav:3310  (scan upload, then minio)
                                     ► minio:9000
 
 Host agents (profile observability): node-exporter, cAdvisor, Promtail → Prometheus / Loki → Grafana.

@@ -8,5 +8,6 @@ resources:
   - redis.yaml
   - keycloak.yaml
   - core-apps.yaml
+  - clamav.yaml
   - observability.yaml
   - mesh.yaml

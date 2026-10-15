@@ -21,7 +21,7 @@ Read detail from that repo when available:
 
 ## Hard rules
 
-1. **Prod Contabo compose** ships only: API, frontend (or workers), **métier DB**. No redis / keycloak / artemis / kafka / minio / mailpit / grafana / pgadmin.
+1. **Prod Contabo compose** ships only: API, frontend (or workers), **métier DB**. No redis / keycloak / artemis / kafka / minio / mailpit / grafana / pgadmin / clamav.
 2. **Local compose** (`docker-compose.yml` at repo root) stays **self-contained**: postgres + redis + broker + keycloak + mail catcher so `docker compose up` works offline.
 3. Product DB hostname on shared net: `{slug}-db` (alias), never published on host.
 4. Join both networks on Contabo:
@@ -56,6 +56,7 @@ Read detail from that repo when available:
 | Vault | `VAULT_ADDR=http://vault:8200` |
 | OTel | `OTEL_SERVICE_NAME={slug}-api` `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318` `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` `OTEL_RESOURCE_ATTRIBUTES=service.namespace=optimizesolux,deployment.environment=prod` |
 | MinIO | `MINIO_ENDPOINT=http://minio:9000` |
+| Antivirus (uploads) | `CLAMAV_HOST=clamav` `CLAMAV_PORT=3310` — clamd `INSTREAM` before storing; reject on `FOUND` or scan error |
 
 ## Prod compose skeleton
 
@@ -120,6 +121,7 @@ When adding or migrating deploy:
 - Putting tools on `traefik-public` only and skipping `optimizesolux-common`
 - Publishing métier Postgres ports on the host
 - Enabling Ollama from product CD
+- Storing an upload in MinIO before (or without) a clean ClamAV scan
 - Breaking local-only compose so laptop needs the VPS stack
 
 ## Extra reference

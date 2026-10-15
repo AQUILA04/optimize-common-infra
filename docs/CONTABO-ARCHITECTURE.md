@@ -56,6 +56,8 @@ Profils actifs : `core`, `observability`, `mesh`.
 
 Profils présents dans le compose, non démarrés : `kafka`, `rabbitmq`, `tracing` (Jaeger), `ai` (Ollama).
 
+ClamAV (`clamav:3310`, profil `core`) est dans le compose depuis ce relevé, pas encore sur le VPS. Il apparaîtra après `install.sh --force-update clamav`.
+
 Realms dans l’image Keycloak : `biocollect`, `cleantrack`, `ehealth`, `impactc`, `notification-hub`, `optimizesolux`, `restoos`.
 `impactc` et `optimizesolux` n’ont pas de stack produit déployée. Le realm `cleantrack` de l’image n’est pas l’émetteur utilisé par CleanTrack (voir plus bas).
 

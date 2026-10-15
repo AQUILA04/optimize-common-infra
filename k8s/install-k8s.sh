@@ -70,6 +70,7 @@ restart_for_tool() {
     minio) kubectl -n "$NS" rollout restart deploy/minio 2>/dev/null || true ;;
     mailpit) kubectl -n "$NS" rollout restart deploy/mailpit 2>/dev/null || true ;;
     pgadmin) kubectl -n "$NS" rollout restart deploy/pgadmin 2>/dev/null || true ;;
+    clamav) kubectl -n "$NS" rollout restart deploy/clamav 2>/dev/null || true ;;
     gateway) kubectl -n "$NS" rollout restart deploy/gateway 2>/dev/null || true ;;
     eureka) kubectl -n "$NS" rollout restart deploy/eureka 2>/dev/null || true ;;
     otel|otel-collector) kubectl -n "$NS" rollout restart deploy/otel-collector 2>/dev/null || true ;;
@@ -91,7 +92,7 @@ restart_for_tool() {
       kubectl -n "$NS" rollout restart deploy/ollama 2>/dev/null || true
       ;;
     all)
-      for t in vault keycloak redis artemis minio mailpit pgadmin gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter; do
+      for t in vault keycloak redis artemis minio mailpit pgadmin clamav gateway eureka otel prometheus grafana loki promtail node-exporter cadvisor redis-exporter; do
         restart_for_tool "$t"
       done
       has_profile kafka && restart_for_tool kafka

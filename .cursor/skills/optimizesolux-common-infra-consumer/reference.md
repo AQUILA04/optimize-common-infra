@@ -12,6 +12,7 @@ Source of truth: `optimize-common-infra/docs/NETWORKING.md`.
 | Mailpit | `mailpit` | 1025 SMTP / 8025 UI |
 | Vault | `vault` | 8200 |
 | MinIO | `minio` | 9000 / 9001 |
+| ClamAV (clamd) | `clamav` | 3310 (internal only) |
 | OTel | `otel-collector` | 4317 gRPC / 4318 HTTP |
 | Prometheus | `prometheus` | 9090 (UI via Traefik) |
 | Grafana | `grafana` | 3000 |
