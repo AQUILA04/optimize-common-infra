@@ -873,3 +873,63 @@ groups:
           severity: critical
           team: tech
           domain: infra
+
+  # ========================================================================
+  # Groupe 9 : Intégrité SQL (P1)
+  # ========================================================================
+  - name: "DatabaseIntegrity"
+    folder: "ELYKIA"
+    interval: 30s
+    rules:
+      - uid: "db_constraint_violation_p1"
+        title: "Violation de contrainte base de données"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: loki
+            model:
+              datasource:
+                type: loki
+                uid: loki
+              editorMode: code
+              expr: 'sum(count_over_time({container="elykia-backend"} |~ "violates check constraint|violates foreign key constraint|duplicate key value violates unique constraint" [5m]))'
+              queryType: instant
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Contrainte Postgres violée sur le backend ELYKIA"
+          description: "Au moins une erreur d'intégrité (check, clé étrangère ou doublon) dans les logs de elykia-backend sur 5 minutes. Explore Loki : {container=\"elykia-backend\"} |= \"violates\"."
+        labels:
+          severity: critical
+          team: tech
+          domain: database
