@@ -895,7 +895,7 @@ groups:
                 type: loki
                 uid: loki
               editorMode: code
-              expr: 'sum(count_over_time({container="elykia-backend"} |~ "violates check constraint|violates foreign key constraint|duplicate key value violates unique constraint" [5m]))'
+              expr: 'sum by (msg) (count_over_time({container="elykia-backend"} |~ "violates (?:check|foreign key|unique) constraint" | regexp `(?P<msg>relation "[^"]+" violates check constraint "[^"]+"|table "[^"]+" violates foreign key constraint "[^"]+"|duplicate key value violates unique constraint "[^"]+")` [5m])) or sum by (msg) (count_over_time({container="elykia-backend"} |= "CLIENT_500 " != "violates" | regexp `(?P<msg>CLIENT_500 [^|]{1,200})` [5m]))'
               queryType: instant
               refId: A
               intervalMs: 15000
@@ -927,8 +927,8 @@ groups:
         execErrState: Error
         for: 1m
         annotations:
-          summary: "Contrainte Postgres violée sur le backend ELYKIA"
-          description: "Au moins une erreur d'intégrité (check, clé étrangère ou doublon) dans les logs de elykia-backend sur 5 minutes. Explore Loki : {container=\"elykia-backend\"} |= \"violates\"."
+          summary: "{{ $labels.msg }}"
+          description: "{{ $labels.msg }}"
         labels:
           severity: critical
           team: tech
