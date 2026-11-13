@@ -670,10 +670,12 @@ groups:
         annotations:
           summary: "Rupture — {{ $labels.article_name }}"
           description: "Article {{ $labels.article_name }} (id {{ $labels.article_id }}) est en rupture de stock (quantité = 0). Liste complète : https://elykia.amenouveve-yaveh.com/bi/stock"
+        # notify_email=false : la règle reste active, l'email est coupé par la politique de notification
         labels:
           severity: info
           team: support
           domain: stock
+          notify_email: "false"
 
       - uid: "articles_low_stock_p3"
         title: "Articles en stock faible"
@@ -718,10 +720,12 @@ groups:
         annotations:
           summary: "Stock faible — {{ $labels.article_name }}"
           description: "Article {{ $labels.article_name }} (id {{ $labels.article_id }}) : {{ $values.B.Value }} unité(s) restantes (seuil réappro {{ $labels.reorder_point }}). Liste complète : https://elykia.amenouveve-yaveh.com/bi/stock"
+        # notify_email=false : la règle reste active, l'email est coupé par la politique de notification
         labels:
           severity: info
           team: support
           domain: stock
+          notify_email: "false"
 
       - uid: "inventory_blocked_p3"
         title: "Inventaire bloqué (écarts non réconciliés)"
@@ -895,7 +899,7 @@ groups:
                 type: loki
                 uid: loki
               editorMode: code
-              expr: 'sum by (msg) (count_over_time({container="elykia-backend"} |~ "violates (?:check|foreign key|unique) constraint" | regexp `(?P<msg>relation "[^"]+" violates check constraint "[^"]+"|table "[^"]+" violates foreign key constraint "[^"]+"|duplicate key value violates unique constraint "[^"]+")` [5m])) or sum by (msg) (count_over_time({container="elykia-backend"} |= "CLIENT_500 " != "violates" | regexp `(?P<msg>CLIENT_500 [^|]{1,200})` [5m]))'
+              expr: 'sum by (msg) (count_over_time({container="elykia-backend"} |~ "(?i)violates (?:check|foreign key|unique|not-null|exclusion) constraint|SQLState[^A-Za-z0-9]{0,3}23[0-9A-Z]{3}" | regexp `(?i)(?P<msg>(?:relation|table) "[^"]+" violates (?:check|foreign key) constraint "[^"]+"|duplicate key value violates unique constraint "[^"]+"|null value in column "[^"]+" (?:of relation "[^"]+" )?violates not-null constraint|conflicting key value violates exclusion constraint "[^"]+"|violates (?:check|foreign key|unique|not-null|exclusion) constraint(?:"[^"]+")?|SQLState[^A-Za-z0-9]{0,3}23[0-9A-Z]{3})` [5m]))'
               queryType: instant
               refId: A
               intervalMs: 15000
@@ -933,3 +937,64 @@ groups:
           severity: critical
           team: tech
           domain: database
+
+  # ========================================================================
+  # Groupe 10 : Alertes WARNING - Erreurs serveur (P2)
+  # CLIENT_500 réel, hors abandon client et hors contrainte SQL (groupe 9)
+  # ========================================================================
+  - name: "ServerErrorWarning"
+    folder: "ELYKIA"
+    interval: 30s
+    rules:
+      - uid: "elykia_server_error_500_p2"
+        title: "Erreur serveur ELYKIA (HTTP 500)"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: loki
+            model:
+              datasource:
+                type: loki
+                uid: loki
+              editorMode: code
+              expr: 'sum by (msg) (count_over_time({container="elykia-backend"} |= "CLIENT_500 " !~ "(?i)violates (?:check|foreign key|unique|not-null|exclusion) constraint" !~ "(?i)broken pipe" != "ServletOutputStream" != "ClientAbortException" != "AsyncRequestNotUsableException" !~ "(?i)connection reset" !~ "(?i)bad credentials" !~ "(?i)unexpected end of stream" !~ "(?i)SQLState[^A-Za-z0-9]{0,3}23[0-9A-Z]{3}" | regexp `(?P<msg>CLIENT_500 [^|]{1,200})` [5m]))'
+              queryType: instant
+              refId: A
+              intervalMs: 15000
+              maxDataPoints: 100
+          - refId: B
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: reduce
+              expression: A
+              reducer: last
+              refId: B
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+              refId: C
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "{{ $labels.msg }}"
+          description: "Erreur serveur ELYKIA (CLIENT_500), hors abandon client et hors violation de contrainte SQL. {{ $labels.msg }}"
+        labels:
+          severity: warning
+          team: tech
+          domain: api
