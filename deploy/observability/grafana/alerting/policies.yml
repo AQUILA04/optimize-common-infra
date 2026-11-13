@@ -9,3 +9,13 @@ policies:
     group_wait: 30s
     group_interval: 5m
     repeat_interval: 4h
+    routes:
+      # Rupture de stock et stock faible : la règle reste visible dans Grafana,
+      # mais aucun email n'est envoyé. continue: false empêche la politique
+      # racine (Email Admins) de notifier aussi.
+      - receiver: Email Admins
+        object_matchers:
+          - ["notify_email", "=", "false"]
+        mute_time_intervals:
+          - stock-level-no-email
+        continue: false
